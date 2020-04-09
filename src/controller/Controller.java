@@ -63,6 +63,18 @@ public class Controller {
 				}
 				    
 					break;
+				case 2: 
+					view.printMessage("Ingrese el objectId a buscar...");
+					int id = lector.nextInt();
+					modelo.requerimiento2(id);
+					break;
+				case 3: 
+					view.printMessage("Ingrese el limite inferior del object Id:");
+					int id2 = lector.nextInt();
+					view.printMessage("Ingrese el limite superior del object Id:");
+					int id3 = lector.nextInt();
+					modelo.requerimiento3(id2, id3);
+					break;	
 				case 5: 
 					view.printMessage("--------- \n Hasta pronto !! \n---------"); 
 					lector.close();

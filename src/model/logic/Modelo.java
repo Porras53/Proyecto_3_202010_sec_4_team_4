@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Random;
 
 import com.google.gson.*;
@@ -99,11 +100,49 @@ public class Modelo {
 		System.out.println((fin2-inicio2)/1.0e9 +" segundos, de la carga de datos normal.");
 		
 		System.out.println("Numero de Comparendos: "+datosArbol.size());
-		System.out.println("El comparendo con mayor ObejctID es: "+datosArbol.max(datosArbol.getRoot()).darv().toString());
+		System.out.println("El comparendo con menor ObejctID es: "+datosArbol.min().toString());
+		System.out.println("El comparendo con mayor ObejctID es: "+datosArbol.max().toString());
 		
+		System.out.println("Total de nodos en el árbol Rojo-Negro: "+datosArbol.size());
+		System.out.println("Altura máxima del árbol: "+datosArbol.height());
+		System.out.println("Altura minima del árbol: "+datosArbol.height1());
+		System.out.println("Altura mas izquierda del árbol: "+datosArbol.heightprom());
+		System.out.println("Altura mas derecha del árbol: "+datosArbol.heightprom1());
+		System.out.println("Altura aleatoria: "+datosArbol.heightprom2());
+		System.out.println("Altura aleatoria: "+datosArbol.heightprom2());
+		System.out.println("Altura aleatoria: "+datosArbol.heightprom2());
 	}
 	
 	
+	public void requerimiento2(int objectId) 
+	{
+		KeyComparendo k=new KeyComparendo(objectId,null,null,null);
+		Comparendo objeto=(Comparendo)datosArbol.get(k);
+		if(objeto!=null) {
+		System.out.println("El comparendo con ID "+ objectId+" es: "+objeto.toString());
+		}
+		else 
+		{
+			System.out.println("No hay comparendo con ese ID");
+		}
+	}
+	
+	public void requerimiento3(int idinferior,int idsuperior) 
+	{
+		KeyComparendo kinferior=new KeyComparendo(idinferior,null,null,null);
+		KeyComparendo ksuperior=new KeyComparendo(idsuperior,null,null,null);
+		
+		Iterable<KeyComparendo> resultado= datosArbol.keys(kinferior, ksuperior);
+		
+		Iterator<KeyComparendo> iterator= resultado.iterator();
+		while(iterator.hasNext()) 
+		{
+			KeyComparendo llave= (KeyComparendo) iterator.next();
+			System.out.println(datosArbol.get(llave).toString());
+		}
+		
+		
+	}
 	
 	private static void shuffle(Comparable[] a)
 	{

@@ -39,6 +39,12 @@ public class KeyComparendo implements Comparable<KeyComparendo>{
 		
 	}
 	
+	@Override
+	public String toString() 
+	{
+		return id+"";
+		
+	}
 	
 	@Override
 	public int compareTo(KeyComparendo o) {
