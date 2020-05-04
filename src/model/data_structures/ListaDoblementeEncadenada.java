@@ -3,7 +3,7 @@ package model.data_structures;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class ListaDoblementeEncadenada <T extends Comparable<T>> implements Iterable<T>
+public class ListaDoblementeEncadenada <T > implements Iterable<T>
 {
 	
 	/**
@@ -50,7 +50,7 @@ public class ListaDoblementeEncadenada <T extends Comparable<T>> implements Iter
 	}
 	
 	/**
-	 * Retorna el tamaño de la longitud.
+	 * Retorna el tamaï¿½o de la longitud.
 	 * @return longitud lista
 	 */
 	
@@ -70,7 +70,7 @@ public class ListaDoblementeEncadenada <T extends Comparable<T>> implements Iter
 	}
 	
 	/**
-	 * Inserta un nuevo elemento genérico al final de la lista.
+	 * Inserta un nuevo elemento genï¿½rico al final de la lista.
 	 * @param t2. Elemento nuevo a agregar.
 	 */
 	
@@ -93,7 +93,7 @@ public class ListaDoblementeEncadenada <T extends Comparable<T>> implements Iter
 	}
 	
 	/**
-	 * Inserta un nuvo elemento genérico al principio de la lista.
+	 * Inserta un nuvo elemento genï¿½rico al principio de la lista.
 	 * @param t2. Elemento nuevo a agregar.
 	 */
 	
@@ -163,9 +163,9 @@ public class ListaDoblementeEncadenada <T extends Comparable<T>> implements Iter
 	
 	
 	/**
-	 * Retorna un objeto de la lista , dado su posición.
-	 * @param n. Posición en la lista.
-	 * @return Elemento de clase génerica.
+	 * Retorna un objeto de la lista , dado su posiciï¿½n.
+	 * @param n. Posiciï¿½n en la lista.
+	 * @return Elemento de clase gï¿½nerica.
 	 */
 	
 	public Node darObjeto(int pos)
@@ -199,8 +199,8 @@ public class ListaDoblementeEncadenada <T extends Comparable<T>> implements Iter
 	
 	
 	/**
-	 * Retorna el ultimo elemento génerico de la lista
-	 * @return Elemento de clase génerica.
+	 * Retorna el ultimo elemento gï¿½nerico de la lista
+	 * @return Elemento de clase gï¿½nerica.
 	 */
 	
 	public T darUltimo()

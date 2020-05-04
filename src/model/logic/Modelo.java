@@ -61,7 +61,7 @@ public class Modelo {
 		
 		long inicio = System.currentTimeMillis();
 		long inicio2 = System.nanoTime();
-		String dir= "./data/Comparendos_DEI_2018_Bogotá_D.C.geojson";
+		String dir= "./data/Comparendos_DEI_2018_Bogotï¿½_D.C.geojson";
 		File archivo= new File(dir);
 		JsonReader reader= new JsonReader( new InputStreamReader(new FileInputStream(archivo)));
 		JsonObject gsonObj0= JsonParser.parseReader(reader).getAsJsonObject();
@@ -103,11 +103,11 @@ public class Modelo {
 		System.out.println("El comparendo con menor ObejctID es: "+datosArbol.min().toString());
 		System.out.println("El comparendo con mayor ObejctID es: "+datosArbol.max().toString());
 		
-		System.out.println("Total de nodos en el árbol Rojo-Negro: "+datosArbol.size());
-		System.out.println("Altura máxima del árbol: "+datosArbol.height());
-		System.out.println("Altura minima del árbol: "+datosArbol.height1());
-		System.out.println("Altura mas izquierda del árbol: "+datosArbol.heightprom());
-		System.out.println("Altura mas derecha del árbol: "+datosArbol.heightprom1());
+		System.out.println("Total de nodos en el ï¿½rbol Rojo-Negro: "+datosArbol.size());
+		System.out.println("Altura mï¿½xima del ï¿½rbol: "+datosArbol.height());
+		System.out.println("Altura minima del ï¿½rbol: "+datosArbol.height1());
+		System.out.println("Altura mas izquierda del ï¿½rbol: "+datosArbol.heightprom());
+		System.out.println("Altura mas derecha del ï¿½rbol: "+datosArbol.heightprom1());
 		System.out.println("Altura aleatoria: "+datosArbol.heightprom2());
 		System.out.println("Altura aleatoria: "+datosArbol.heightprom2());
 		System.out.println("Altura aleatoria: "+datosArbol.heightprom2());
@@ -170,11 +170,11 @@ public class Modelo {
 		return datosCola3;
 	}
 	
-	public Comparable[] copiar(ListaDoblementeEncadenada datos)
+	public Object[] copiar(ListaDoblementeEncadenada datos)
 	{
 		int i=0;
 		Node puntero=datos.darCabeza2();
-		Comparable[] arreglo= new Comparable[datos.darLongitud()];
+		Object[] arreglo= new Comparable[datos.darLongitud()];
 		while(i<datos.darLongitud())
 		{
 			arreglo[i]= puntero.darE();
