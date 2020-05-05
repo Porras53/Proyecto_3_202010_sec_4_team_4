@@ -1,18 +1,18 @@
 package model.data_structures;
 
-public class vertice<K extends Comparable <K>, V, C>implements Comparable<vertice<K , V, C>> {
+public class Vertice<K extends Comparable <K>, V, C>implements Comparable<Vertice<K , V, C>> {
 
 	private K key;
 	private V value;
-	private ListaDoblementeEncadenada<arco>list;
+	private ListaDoblementeEncadenada<Arco>list;
 	
-	public vertice(K key, V value) {
+	public Vertice(K key, V value) {
 		
 		this.key = key;
 		this.value = value;
 		list= new ListaDoblementeEncadenada();
 	}
-    public void anadiraListadeArcos(arco arco) {
+    public void anadiraListadeArcos(Arco arco) {
     	list.insertarComienzo(arco);
     }
     public ListaDoblementeEncadenada darListaArcos()
@@ -36,14 +36,14 @@ public class vertice<K extends Comparable <K>, V, C>implements Comparable<vertic
 	}
 
 	@Override
-	public int compareTo(vertice o) {
+	public int compareTo(Vertice o) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	public arco darConexion(vertice v) {
+	public Arco darConexion(Vertice v) {
 		if (list.esListaVacia())
 			return null;
-		for (arco arco : list) {
+		for (Arco arco : list) {
 			if(arco.contiene(this, v))
 				return arco;
 		}
