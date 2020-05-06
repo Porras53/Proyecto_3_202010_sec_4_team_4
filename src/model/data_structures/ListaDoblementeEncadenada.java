@@ -3,7 +3,7 @@ package model.data_structures;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class ListaDoblementeEncadenada <T > implements Iterable<T>
+public class ListaDoblementeEncadenada <T> implements Iterable<T>
 {
 	
 	/**

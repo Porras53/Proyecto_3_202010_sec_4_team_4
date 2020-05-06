@@ -54,7 +54,7 @@ public class Controller {
 				try {
 					
 					
-					modelo.cargarCola();
+					modelo.cargarGrafo();
 					
 
 				} catch (FileNotFoundException e) {
@@ -64,9 +64,7 @@ public class Controller {
 				    
 					break;
 				case 2: 
-					view.printMessage("Ingrese el objectId a buscar...");
-					int id = lector.nextInt();
-					modelo.requerimiento2(id);
+					modelo.escribirJson();
 					break;
 				case 3: 
 					view.printMessage("Ingrese el limite inferior del object Id:");

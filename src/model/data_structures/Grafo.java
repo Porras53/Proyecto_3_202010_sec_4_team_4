@@ -13,12 +13,12 @@ public class Grafo<K extends Comparable <K>, V, C> {
 	private int count;
 	private int count2;
 
-	public Grafo(int ejemplo) {
+	public Grafo() {
 
-		marked = new HashSeparateChaining();
-		id= new HashSeparateChaining();
-
-		nodos=new HashSeparateChaining();
+		marked = new HashSeparateChaining<K,Integer>();
+		id= new HashSeparateChaining<K,Integer>();
+		nodos=new HashSeparateChaining<K, Vertice<K,V,C>>();
+		
 		list=new ListaDoblementeEncadenada<Arco>();
 
 	}
@@ -35,7 +35,6 @@ public class Grafo<K extends Comparable <K>, V, C> {
 
 	public V getInfoVertex(K idVertex) {
 		if(nodos.getSet(idVertex)==null)
-
 			return null;
 
 		return nodos.getSet(idVertex).darCabeza().getValue();
@@ -145,7 +144,7 @@ public class Grafo<K extends Comparable <K>, V, C> {
 	 * True==1 y false==0
 	 * @param v
 	 */
-	 private void dfs(K v) 
+	 public void dfs(K v) 
 	 {
 		 count2++;
 		 marked.getSet(v).darCabeza2().cambiarE(1);
@@ -194,6 +193,11 @@ public class Grafo<K extends Comparable <K>, V, C> {
 		  */
 		 return null;
 	 }
+
+
+	public HashSeparateChaining<K, Vertice<K, V, C>> getNodos() {
+		return nodos;
+	}
 
 
 
