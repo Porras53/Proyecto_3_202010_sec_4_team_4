@@ -13,7 +13,7 @@ public class Vertice<K extends Comparable <K>, V, C>implements Comparable<Vertic
 		list= new ListaDoblementeEncadenada();
 	}
     public void anadiraListadeArcos(Arco arco) {
-    	list.insertarComienzo(arco);
+    	list.insertarFinal(arco);
     }
     public ListaDoblementeEncadenada darListaArcos()
     {

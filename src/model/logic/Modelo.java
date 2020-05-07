@@ -1,6 +1,5 @@
 package model.logic;
 
-import java.awt.List;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,6 +20,12 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
+import com.teamdev.jxmaps.swing.MapView;
+import com.teamdev.jxmaps.*;
+import com.teamdev.jxmaps.Polygon;
+
+import javax.swing.*;
+import java.awt.*;
 
 import model.data_structures.*;
 
@@ -47,6 +52,8 @@ public class Modelo {
 
 	private Grafo grafo;
 
+	private Grafo grafojson;
+
 	private static Comparable[] aux;
 
 	/**
@@ -55,6 +62,7 @@ public class Modelo {
 	public Modelo()
 	{
 		grafo= new Grafo();
+		grafojson= new Grafo();
 		datosCola2 = new HashLinearProbing();
 		datosCola3=new HashSeparateChaining();
 		datosArbol= new ArbolRojoNegroBTS();
@@ -112,20 +120,20 @@ public class Modelo {
 				if(arcos.length>1) 
 				{
 					Integer idprincipal=Integer.parseInt(arcos[0]);
-					
+
 					Double latitudinicial=(Double)((ListaDoblementeEncadenada)grafo.getInfoVertex(idprincipal)).darCabeza2().darSiguiente().darE();
 					Double longitudinicial=(Double)((ListaDoblementeEncadenada)grafo.getInfoVertex(idprincipal)).darCabeza();
-					
+
 					for(int i=1;i<arcos.length;i++) 
 					{
 						// calcular haversine con el vertice siguiente y crear arco
 						Integer idactual=Integer.parseInt(arcos[i]);
 						Double latitudfinal=(Double)((ListaDoblementeEncadenada)grafo.getInfoVertex(idactual)).darCabeza2().darSiguiente().darE();
 						Double longitudfinal=(Double)((ListaDoblementeEncadenada)grafo.getInfoVertex(idactual)).darCabeza();
-						
+
 						double distanciaconverticeactual = distance(latitudinicial, longitudinicial,latitudfinal,longitudfinal);
-						
-						grafo.addEdge(idprincipal, idactual, distanciaconverticeactual);
+
+						grafo.addEdge2(idprincipal, idactual, distanciaconverticeactual);
 					}
 
 				}
@@ -142,8 +150,8 @@ public class Modelo {
 
 		File archivo= new File(dir);
 
-		
-		
+
+
 
 		/**JsonReader reader= new JsonReader( new InputStreamReader(new FileInputStream(archivo)));
 		JsonObject gsonObj0= JsonParser.parseReader(reader).getAsJsonObject();
@@ -186,55 +194,61 @@ public class Modelo {
 		System.out.println("Numero de vertices: "+grafo.V());
 		System.out.println("Numero de arcos: "+grafo.E());
 	}
-	
-	
+
+
 	public void escribirJson() 
 	{
 		JSONObject obj = new JSONObject();
 		obj.put("type", "Feature Collection");
-		
+
 		JSONArray vertices = new JSONArray();
-		
+
 		NodoHash22<Integer,ListaDoblementeEncadenada<Vertice>>[] verticesnodos= grafo.getNodos().getNodosSet();
+		int num=0;
+		System.out.println("tamano total: "+grafo.getNodos().getTamTotal());
+		System.out.println("tamano actual: "+grafo.getNodos().getTamActual());
 		for(int i=0;i<verticesnodos.length;i++) 
+
 		{
 			if(verticesnodos[i]!=null) {
-			
-			Vertice actual=verticesnodos[i].darv().darCabeza(); 
-			
-			JSONObject verticeactual = new JSONObject();
-			
-			Double latitud=(Double)((ListaDoblementeEncadenada)actual.getValue()).darCabeza2().darSiguiente().darE();
-			Double longitud=(Double)((ListaDoblementeEncadenada)actual.getValue()).darCabeza();
-			
-			verticeactual.put("Longitud", longitud);
-			verticeactual.put("Latitud", latitud);
-			
-			JSONArray arcos = new JSONArray();
-			ListaDoblementeEncadenada<Arco> arcoslista=actual.darListaArcos();
-			
-			Node<Arco> a= arcoslista.darCabeza2();
-			
-			while(a!=null) {
-			
-				JSONObject arcoactual = new JSONObject();
-				arcoactual.put("Costo", a.darE().getCosto());
-				arcos.add(arcoactual);
-				a=a.darSiguiente();
-			}
-			
-			verticeactual.put("Arcos", arcos);
-			
-			vertices.add(verticeactual);
+				num++;
+				Vertice actual=verticesnodos[i].darv().darCabeza(); 
+
+				JSONObject verticeactual = new JSONObject();
+
+				Double latitud=(Double)((ListaDoblementeEncadenada)actual.getValue()).darCabeza2().darSiguiente().darE();
+				Double longitud=(Double)((ListaDoblementeEncadenada)actual.getValue()).darCabeza();
+
+				verticeactual.put("IDINICIAL", actual.getKey());
+				verticeactual.put("LONGITUD", longitud);
+				verticeactual.put("LATITUD", latitud);
+
+				JSONArray arcos = new JSONArray();
+				ListaDoblementeEncadenada<Arco> arcoslista=actual.darListaArcos();
+
+				Node<Arco> a= arcoslista.darCabeza2();
+
+				while(a!=null) {
+
+					JSONObject arcoactual = new JSONObject();
+					arcoactual.put("IDFINAL", a.darE().getvFinal().getKey());
+					arcoactual.put("COSTO", a.darE().getCosto());
+					arcos.add(arcoactual);
+					a=a.darSiguiente();
+				}
+
+				verticeactual.put("ARCOS", arcos);
+
+				vertices.add(verticeactual);
 			}
 		}
-		
+
 		obj.put("features", vertices);
-		
-		
+
+
 		try {
 
-			FileWriter filesalida = new FileWriter("./data/producto.json");
+			FileWriter filesalida = new FileWriter("./data/grafopersistido.json");
 			filesalida.write(obj.toJSONString());
 			filesalida.flush();
 			filesalida.close();
@@ -242,7 +256,153 @@ public class Modelo {
 		} catch (IOException e) {
 			//manejar error
 		}
+		System.out.println(num);
 	}
+
+
+	public void leerJson() 
+	{
+		grafojson= new Grafo();
+		File archivo= new File("./data/grafopersistido.json");
+		JsonReader reader=null;
+		try {
+			reader = new JsonReader( new InputStreamReader(new FileInputStream(archivo)));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		JsonObject gsonObj0= JsonParser.parseReader(reader).getAsJsonObject();
+
+		JsonArray vertices=gsonObj0.get("features").getAsJsonArray();
+		int i=0;
+		System.out.println(vertices.size());
+		while(i<vertices.size())
+		{
+			JsonElement obj= vertices.get(i);
+			JsonObject verticeactual= obj.getAsJsonObject();
+			Double longitud=verticeactual.get("LONGITUD").getAsDouble();
+			Double latitud=verticeactual.get("LATITUD").getAsDouble();
+			Integer idvertice=verticeactual.get("IDINICIAL").getAsInt();
+
+			JsonArray arcos=verticeactual.get("ARCOS").getAsJsonArray();
+			ListaDoblementeEncadenada posicion= new ListaDoblementeEncadenada();
+			posicion.insertarFinal(longitud);
+			posicion.insertarFinal(latitud);
+			grafojson.addVertex(idvertice, posicion);
+			++i;
+		}
+
+
+		int j=0;
+		while(j<vertices.size())
+		{
+			JsonElement obj= vertices.get(j);
+			JsonObject verticeactual= obj.getAsJsonObject();
+
+			JsonArray arcos=verticeactual.get("ARCOS").getAsJsonArray();
+			Integer idvertice=verticeactual.get("IDINICIAL").getAsInt();
+			for(int x=0;x<arcos.size();x++) 
+			{
+				JsonObject arcoactual=arcos.get(x).getAsJsonObject();
+
+				Integer idfinal=arcoactual.get("IDFINAL").getAsInt();
+				Double costoactual=arcoactual.get("COSTO").getAsDouble();
+
+				Arco nuevoarco= new Arco(grafojson.getVertex(idvertice),grafojson.getVertex(idfinal),costoactual);
+				grafojson.addEdge(idvertice, idfinal, costoactual);
+
+			}
+			++j;
+		}
+
+		System.out.println("Numero de vertices: "+grafojson.V());
+		System.out.println("Numero de arcos: "+grafojson.E());
+
+
+	}
+
+	public void dibujarTodin() 
+	{
+		JFrame frame= new JFrame("Grafito");
+		
+		class MapExample extends MapView {
+
+			public MapExample() {
+
+		        // Setting of a ready handler to MapView object. onMapReady will be called when map initialization is done and
+		        // the map object is ready to use. Current implementation of onMapReady customizes the map object.
+		        setOnMapReadyHandler(new MapReadyHandler() {
+		            @Override
+		            public void onMapReady(MapStatus status) {
+		                if (status == MapStatus.MAP_STATUS_OK) {
+		                	
+		                    final Map map = getMap();
+		                    
+		                    MapOptions options = new MapOptions();
+		                    
+		                    MapTypeControlOptions controlOptions = new MapTypeControlOptions();
+		                    
+		                    options.setMapTypeControlOptions(controlOptions);
+		                 
+		                    map.setOptions(options);
+		                   
+		                    map.setCenter(new LatLng(4.609537, -74.078715));
+		                    
+		                    map.setZoom(15.0);
+		                    
+		                	ListaDoblementeEncadenada<Arco> arcos=grafojson.getList();
+		            		System.out.println("Estado de map:"+map);
+		            		Node<Arco> actual= arcos.darCabeza2();
+		            		while(actual!=null) 
+		            		{
+		            			ListaDoblementeEncadenada<Double> vertice1coor=(ListaDoblementeEncadenada<Double>)actual.darE().getvInicio().getValue();
+		            			ListaDoblementeEncadenada<Double> vertice2coor=(ListaDoblementeEncadenada<Double>)actual.darE().getvFinal().getValue();
+		            			
+		            			LatLng ver1=new LatLng((double) vertice1coor.darCabeza2().darSiguiente().darE(),vertice1coor.darCabeza());
+		            			LatLng ver2=new LatLng((double) vertice2coor.darCabeza2().darSiguiente().darE(),vertice2coor.darCabeza());
+		            			
+		            			Circle ver11=new Circle(map);
+		            			ver11.setCenter(ver1);
+		            			ver11.setRadius(1);
+		            			CircleOptions co= new CircleOptions();
+		            			co.setFillColor("#008F39");
+		            			ver11.setOptions(co);
+		            			ver11.setVisible(true);
+		            			
+		            			Circle ver22=new Circle(map);
+		            			ver22.setCenter(ver2);
+		            			ver22.setRadius(1);
+		            			CircleOptions co1= new CircleOptions();
+		            			co1.setFillColor("#008F39");
+		            			ver22.setOptions(co1);
+		            			ver22.setVisible(true);
+		            			
+		            			LatLng[] camino= new LatLng[2];
+		            			camino[0]=ver1;
+		            			camino[1]=ver2;
+		            			Polygon linea= new Polygon(map);
+		            			linea.setPath(camino);
+		            			linea.setVisible(true);
+		            			
+		            			
+		            			actual=actual.darSiguiente();
+		            		}
+		                }
+		            }
+		        });
+		        
+		    }
+			
+		}
+		
+		MapExample map1 = new MapExample();
+		frame.add( map1,BorderLayout.CENTER);
+        frame.setSize(700, 500);
+        frame.setVisible(true);
+		
+	}
+	
 
 	public static double distance(double startLat, double startLong,
 			double endLat, double endLong) {

@@ -20,7 +20,7 @@ public class HashSeparateChaining <K extends Comparable<K>, V extends Comparable
     
 	public HashSeparateChaining( int max ){
 	tamTotal=max;
-	factorCargaMaximo=5;
+	factorCargaMaximo=1;
 	tamActual=0;
 	contrehash=0;
 	nodosSet=  new NodoHash22[max];
