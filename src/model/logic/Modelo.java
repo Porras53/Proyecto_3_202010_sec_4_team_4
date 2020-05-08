@@ -44,17 +44,17 @@ public class Modelo {
 
 	private static final int EARTH_RADIUS = 6371; // Approx Earth radius in KM
 
-	private HashLinearProbing datosCola2;
+	private static final Double LONGMIN =-74.094723;
+	private static final Double LONGMAX =-74.062707;
 
-	private HashSeparateChaining datosCola3;
-
-	private ArbolRojoNegroBTS datosArbol;
+	private static final Double LATMIN =4.597714;
+	private static final Double LATMAX = 4.621360;
 
 	private Grafo grafo;
 
 	private Grafo grafojson;
 
-	private static Comparable[] aux;
+	ListaDoblementeEncadenada<EstacionPolicia> estaciones;
 
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
@@ -63,9 +63,7 @@ public class Modelo {
 	{
 		grafo= new Grafo();
 		grafojson= new Grafo();
-		datosCola2 = new HashLinearProbing();
-		datosCola3=new HashSeparateChaining();
-		datosArbol= new ArbolRojoNegroBTS();
+		estaciones= new ListaDoblementeEncadenada<EstacionPolicia>();
 	}
 
 	/**
@@ -151,39 +149,31 @@ public class Modelo {
 		File archivo= new File(dir);
 
 
-
-
-		/**JsonReader reader= new JsonReader( new InputStreamReader(new FileInputStream(archivo)));
+		JsonReader reader= new JsonReader( new InputStreamReader(new FileInputStream(archivo)));
 		JsonObject gsonObj0= JsonParser.parseReader(reader).getAsJsonObject();
 
-		JsonArray comparendos=gsonObj0.get("features").getAsJsonArray();
+		JsonArray estaciones=gsonObj0.get("features").getAsJsonArray();
 		int i=0;
-		while(i<comparendos.size())
+		while(i<estaciones.size())
 		{
-			JsonElement obj= comparendos.get(i);
+			JsonElement obj= estaciones.get(i);
 			JsonObject gsonObj= obj.getAsJsonObject();
 
 			JsonObject gsonObjpropiedades=gsonObj.get("properties").getAsJsonObject();
+
+
 			int objid= gsonObjpropiedades.get("OBJECTID").getAsInt();
-			String fecha= gsonObjpropiedades.get("FECHA_HORA").getAsString();
-			String mediodeteccion = "";
-			String clasevehiculo=gsonObjpropiedades.get("CLASE_VEHICULO").getAsString();
-			String tiposervi=gsonObjpropiedades.get("TIPO_SERVICIO").getAsString();
-			String infraccion=gsonObjpropiedades.get("INFRACCION").getAsString();
-			String desinfraccion=gsonObjpropiedades.get("DES_INFRACCION").getAsString();
-			String localidad=gsonObjpropiedades.get("LOCALIDAD").getAsString();
-			String municipio = "";
+			String correo=gsonObjpropiedades.get("EPOCELECTR").getAsString();
+			String direccion=gsonObjpropiedades.get("EPODIR_SITIO").getAsString();
+			String descripcion=gsonObjpropiedades.get("EPODESCRIP").getAsString();
 
-			JsonObject gsonObjgeometria=gsonObj.get("geometry").getAsJsonObject();
+			Double longitud= gsonObjpropiedades.get("EPOLONGITU").getAsDouble();
+			Double latitud= gsonObjpropiedades.get("EPOLATITUD").getAsDouble();
 
-			JsonArray gsonArrcoordenadas= gsonObjgeometria.get("coordinates").getAsJsonArray();
-			double longitud= gsonArrcoordenadas.get(0).getAsDouble();
-			double latitud= gsonArrcoordenadas.get(1).getAsDouble();
-
-			Comparendo agregar=new Comparendo(objid, fecha,mediodeteccion,clasevehiculo, tiposervi, infraccion, desinfraccion, localidad, municipio ,longitud,latitud);
-			datosArbol.put(agregar.getLlave(), agregar);
+			EstacionPolicia agregar=new EstacionPolicia(objid,longitud,latitud ,direccion, descripcion, correo);
+			this.estaciones.insertarFinal(agregar);
 			i++;
-		}**/
+		}
 
 
 
@@ -325,84 +315,114 @@ public class Modelo {
 	public void dibujarTodin() 
 	{
 		JFrame frame= new JFrame("Grafito");
-		
+
 		class MapExample extends MapView {
 
 			public MapExample() {
 
-		        // Setting of a ready handler to MapView object. onMapReady will be called when map initialization is done and
-		        // the map object is ready to use. Current implementation of onMapReady customizes the map object.
-		        setOnMapReadyHandler(new MapReadyHandler() {
-		            @Override
-		            public void onMapReady(MapStatus status) {
-		                if (status == MapStatus.MAP_STATUS_OK) {
-		                	
-		                    final Map map = getMap();
-		                    
-		                    MapOptions options = new MapOptions();
-		                    
-		                    MapTypeControlOptions controlOptions = new MapTypeControlOptions();
-		                    
-		                    options.setMapTypeControlOptions(controlOptions);
-		                 
-		                    map.setOptions(options);
-		                   
-		                    map.setCenter(new LatLng(4.609537, -74.078715));
-		                    
-		                    map.setZoom(15.0);
-		                    
-		                	ListaDoblementeEncadenada<Arco> arcos=grafojson.getList();
-		            		System.out.println("Estado de map:"+map);
-		            		Node<Arco> actual= arcos.darCabeza2();
-		            		while(actual!=null) 
-		            		{
-		            			ListaDoblementeEncadenada<Double> vertice1coor=(ListaDoblementeEncadenada<Double>)actual.darE().getvInicio().getValue();
-		            			ListaDoblementeEncadenada<Double> vertice2coor=(ListaDoblementeEncadenada<Double>)actual.darE().getvFinal().getValue();
-		            			
-		            			LatLng ver1=new LatLng((double) vertice1coor.darCabeza2().darSiguiente().darE(),vertice1coor.darCabeza());
-		            			LatLng ver2=new LatLng((double) vertice2coor.darCabeza2().darSiguiente().darE(),vertice2coor.darCabeza());
-		            			
-		            			Circle ver11=new Circle(map);
-		            			ver11.setCenter(ver1);
-		            			ver11.setRadius(1);
-		            			CircleOptions co= new CircleOptions();
-		            			co.setFillColor("#008F39");
-		            			ver11.setOptions(co);
-		            			ver11.setVisible(true);
-		            			
-		            			Circle ver22=new Circle(map);
-		            			ver22.setCenter(ver2);
-		            			ver22.setRadius(1);
-		            			CircleOptions co1= new CircleOptions();
-		            			co1.setFillColor("#008F39");
-		            			ver22.setOptions(co1);
-		            			ver22.setVisible(true);
-		            			
-		            			LatLng[] camino= new LatLng[2];
-		            			camino[0]=ver1;
-		            			camino[1]=ver2;
-		            			Polygon linea= new Polygon(map);
-		            			linea.setPath(camino);
-		            			linea.setVisible(true);
-		            			
-		            			
-		            			actual=actual.darSiguiente();
-		            		}
-		                }
-		            }
-		        });
-		        
-		    }
-			
+				// Setting of a ready handler to MapView object. onMapReady will be called when map initialization is done and
+				// the map object is ready to use. Current implementation of onMapReady customizes the map object.
+				setOnMapReadyHandler(new MapReadyHandler() {
+					@Override
+					public void onMapReady(MapStatus status) {
+						if (status == MapStatus.MAP_STATUS_OK) {
+
+							final Map map = getMap();
+
+							MapOptions options = new MapOptions();
+
+							MapTypeControlOptions controlOptions = new MapTypeControlOptions();
+
+							options.setMapTypeControlOptions(controlOptions);
+
+							map.setOptions(options);
+
+							map.setCenter(new LatLng(4.609537, -74.078715));
+
+							map.setZoom(15.0);
+
+							ListaDoblementeEncadenada<Arco> arcos=grafojson.getList();
+							
+							
+							Node<EstacionPolicia> actualpol= estaciones.darCabeza2();
+							while(actualpol!=null) 
+							{
+								Double longitud=actualpol.darE().getLongitud();
+								Double latitud=actualpol.darE().getLatitud();
+								
+								if(longitud<=LONGMAX && longitud>=LONGMIN && latitud<=LATMAX && latitud>=LATMIN) 
+								{
+									LatLng poli=new LatLng(latitud,longitud);
+									
+									Circle pol=new Circle(map);
+									pol.setCenter(poli);
+									pol.setRadius(20);
+									CircleOptions co= new CircleOptions();
+									co.setFillColor("#CB3234");
+									pol.setOptions(co);
+									pol.setVisible(true);
+									
+								}
+								actualpol=actualpol.darSiguiente();
+							}
+							
+							Node<Arco> actual= arcos.darCabeza2();
+							while(actual!=null) 
+							{
+								ListaDoblementeEncadenada<Double> vertice1coor=(ListaDoblementeEncadenada<Double>)actual.darE().getvInicio().getValue();
+								ListaDoblementeEncadenada<Double> vertice2coor=(ListaDoblementeEncadenada<Double>)actual.darE().getvFinal().getValue();
+
+								if(vertice1coor.darCabeza()<=LONGMAX && vertice1coor.darCabeza()>=LONGMIN && vertice2coor.darCabeza()<=LONGMAX && vertice2coor.darCabeza()>=LONGMIN && (Double)vertice1coor.darCabeza2().darSiguiente().darE()<=LATMAX && (Double)vertice1coor.darCabeza2().darSiguiente().darE()>=LATMIN && (Double)vertice2coor.darCabeza2().darSiguiente().darE()<=LATMAX && (Double)vertice2coor.darCabeza2().darSiguiente().darE()>=LATMIN) 
+								{
+									LatLng ver1=new LatLng((double) vertice1coor.darCabeza2().darSiguiente().darE(),vertice1coor.darCabeza());
+									LatLng ver2=new LatLng((double) vertice2coor.darCabeza2().darSiguiente().darE(),vertice2coor.darCabeza());
+
+									Circle ver11=new Circle(map);
+									ver11.setCenter(ver1);
+									ver11.setRadius(1);
+									CircleOptions co= new CircleOptions();
+									co.setFillColor("#008F39");
+									ver11.setOptions(co);
+									ver11.setVisible(true);
+
+									Circle ver22=new Circle(map);
+									ver22.setCenter(ver2);
+									ver22.setRadius(1);
+									CircleOptions co1= new CircleOptions();
+									co1.setFillColor("#008F39");
+									ver22.setOptions(co1);
+									ver22.setVisible(true);
+
+									LatLng[] camino= new LatLng[2];
+									camino[0]=ver1;
+									camino[1]=ver2;
+									Polygon linea= new Polygon(map);
+									linea.setPath(camino);
+									linea.setVisible(true);
+								}
+
+								actual=actual.darSiguiente();
+							}	
+
+
+
+
+
+						}
+					}
+				});
+
+			}
+
 		}
-		
+
 		MapExample map1 = new MapExample();
 		frame.add( map1,BorderLayout.CENTER);
-        frame.setSize(700, 500);
-        frame.setVisible(true);
-		
+		frame.setSize(700, 500);
+		frame.setVisible(true);
+
 	}
-	
+
 
 	public static double distance(double startLat, double startLong,
 			double endLat, double endLong) {
@@ -421,107 +441,6 @@ public class Modelo {
 
 	public static double haversin(double val) {
 		return Math.pow(Math.sin(val / 2), 2);
-	}
-
-	public void requerimiento2(int objectId) 
-	{
-		KeyComparendo k=new KeyComparendo(objectId,null,null,null);
-		Comparendo objeto=(Comparendo)datosArbol.get(k);
-		if(objeto!=null) {
-			System.out.println("El comparendo con ID "+ objectId+" es: "+objeto.toString());
-		}
-		else 
-		{
-			System.out.println("No hay comparendo con ese ID");
-		}
-	}
-
-	public void requerimiento3(int idinferior,int idsuperior) 
-	{
-		KeyComparendo kinferior=new KeyComparendo(idinferior,null,null,null);
-		KeyComparendo ksuperior=new KeyComparendo(idsuperior,null,null,null);
-
-		Iterable<KeyComparendo> resultado= datosArbol.keys(kinferior, ksuperior);
-
-		Iterator<KeyComparendo> iterator= resultado.iterator();
-		while(iterator.hasNext()) 
-		{
-			KeyComparendo llave= (KeyComparendo) iterator.next();
-			System.out.println(datosArbol.get(llave).toString());
-		}
-
-
-	}
-
-	private static void shuffle(Comparable[] a)
-	{
-		Random r= new Random();
-		for(int i= a.length-1;i>0;i--)
-		{
-			int index= r.nextInt(i+1);
-			Comparable a2= a[index];
-			a[index]=a[i];
-			a[i]=a2;
-		}
-	}
-
-	public static Comparable[] getAux() {
-		return aux;
-	}
-
-
-
-	public HashLinearProbing getDatosCola2() {
-		return datosCola2;
-	}
-
-	public HashSeparateChaining getDatosCola3() {
-		return datosCola3;
-	}
-
-	public Object[] copiar(ListaDoblementeEncadenada datos)
-	{
-		int i=0;
-		Node puntero=datos.darCabeza2();
-		Object[] arreglo= new Comparable[datos.darLongitud()];
-		while(i<datos.darLongitud())
-		{
-			arreglo[i]= puntero.darE();
-			puntero=puntero.darSiguiente();
-			i++;
-		}
-		return arreglo;
-
-	}
-
-	public void pegar(Comparable[] copia, ListaDoblementeEncadenada nuevo)
-	{
-		int i=0;
-		while(i<copia.length)
-		{
-			nuevo.insertarFinal(copia[i]);
-			i++;
-		}
-	}
-
-	public void shellSortMenoraMayor(Comparable datos[])
-	{
-
-		int N=datos.length;
-		int h=1;
-		while(h<N/3)
-			h=3*h+1;
-		while(h>=1){
-			for(int i=h;i<N;i++)
-			{
-				for(int j=i;j>=h && less(datos[j], datos[j-h]);j-=h)
-				{
-					exch(datos,j,j-h);
-				}
-			}
-			h=h/3;
-		}
-
 	}
 
 	private boolean less(Comparable v,Comparable w)
