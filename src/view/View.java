@@ -14,6 +14,7 @@ public class View
 	    
 		public void printMenu()
 		{
+			System.out.println("Ejecutar en orden(1,2,3,4):");
 			System.out.println("1. Cargar comparendos.");
 			System.out.println("2. Crear Json.");
 			System.out.println("3. Cargar Json.");
