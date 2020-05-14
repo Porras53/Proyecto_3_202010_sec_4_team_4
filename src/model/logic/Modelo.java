@@ -50,7 +50,7 @@ public class Modelo {
 	private static final Double LATMIN =4.597714;
 	private static final Double LATMAX = 4.621360;
 
-	private Grafo grafo;
+	private Grafo<Integer, ListaDoblementeEncadenada, Double > grafo;
 
 	private Grafo grafojson;
 
@@ -193,7 +193,7 @@ public class Modelo {
 
 		JSONArray vertices = new JSONArray();
 
-		NodoHash22<Integer,ListaDoblementeEncadenada<Vertice>>[] verticesnodos= grafo.getNodos().getNodosSet();
+		NodoHash22[] verticesnodos= grafo.getNodos().getNodosSet();
 		int num=0;
 		System.out.println("tamano total: "+grafo.getNodos().getTamTotal());
 		System.out.println("tamano actual: "+grafo.getNodos().getTamActual());
@@ -202,7 +202,7 @@ public class Modelo {
 		{
 			if(verticesnodos[i]!=null) {
 				num++;
-				Vertice actual=verticesnodos[i].darv().darCabeza(); 
+				Vertice actual=(Vertice) ((ListaDoblementeEncadenada) verticesnodos[i].darv()).darCabeza(); 
 
 				JSONObject verticeactual = new JSONObject();
 
@@ -423,7 +423,19 @@ public class Modelo {
 
 	}
 
-
+  public int encontrarVertice (double lati, double longi) {
+	
+	Iterator it = grafo.getNodos().keysSet();
+	Int menorDistancia=-1;
+	while(it.hasNext()) {
+		int actual=(int)it.next();
+		grafo.getInfoVertex(actual);
+		Double calculo=distance(lati,longi,);
+	}
+		
+	}
+	  
+  
 	public static double distance(double startLat, double startLong,
 			double endLat, double endLong) {
 
