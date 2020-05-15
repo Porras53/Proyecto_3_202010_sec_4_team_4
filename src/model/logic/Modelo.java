@@ -41,7 +41,9 @@ public class Modelo {
 	/**
 	 * Cola de lista encadenada.
 	 */
-
+	
+	Grafo <Integer, vertex, Cost>grafoCompleto;
+   //crear las clases vertex y cost
 	private static final int EARTH_RADIUS = 6371; // Approx Earth radius in KM
 
 	private static final Double LONGMIN =-74.094723;
@@ -426,14 +428,29 @@ public class Modelo {
   public int encontrarVertice (double lati, double longi) {
 	
 	Iterator it = grafo.getNodos().keysSet();
-	Int menorDistancia=-1;
+	double menorDistancia=-1;
+	int idMasCercano=-1;
 	while(it.hasNext()) {
 		int actual=(int)it.next();
-		grafo.getInfoVertex(actual);
-		Double calculo=distance(lati,longi,);
-	}
+		Double struct=(Double) grafo.getInfoVertex(actual).darCabeza();
+	
+		Double struct2=(Double) grafo.getInfoVertex(actual).darUltimo();
+		Double calculo=distance(lati,longi,struct2,struct);
+		if(menorDistancia<=-1) {
+			menorDistancia=calculo;
+			idMasCercano=actual;
+		}
+		    
+		else if(calculo<=menorDistancia) {
+			menorDistancia=calculo;
+			idMasCercano=actual;
+		}
 		
 	}
+	return idMasCercano;
+		
+	}
+  
 	  
   
 	public static double distance(double startLat, double startLong,
@@ -467,7 +484,17 @@ public class Modelo {
 		datos[j]=t;
 	}
 
-
+public void llenarGrafoCompleto() {
+	for (EstacionPolicia estacionPolicia : estaciones) {
+		int idVertice=encontrarVertice(estacionPolicia.getLatitud(), estacionPolicia.getLongitud());
+		if(grafo.getVertex(idVertice)==null)
+			
+		grafo.addVertex(idVertice, new Vertice(idVertice, estacionPolicia, estacionPolicia, idVertice, idVertice));
+		// para lo del costo, recorrer todo el grafo y replicar los arcos en el grafo completo
+		//el constructor de la clase vertex va a tener la construccion de dos listas: lista de policias y lista de comparendos, y va a recibir una latitud y una longitud
+		// id es para encontrar la lat y long del grafo normal, estos valores se los paso al 2do grafo, entonces a vertex le agrego esta latitud y longitud, y ademas la estacion de policia
+	}
+}
 
 
 

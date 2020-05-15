@@ -24,8 +24,8 @@ public class Grafo<K extends Comparable <K>, V, C> {
 	}
 
 
-	public void addVertex(K idVertex, V infoVertex) {
-		Vertice <K,V,C> vertex=new Vertice(idVertex, infoVertex);
+	public void addVertex(K idVertex, V infoVertex, C cost, double lati, double longi) {
+		Vertice <K,V,C> vertex=new Vertice(idVertex, infoVertex, cost, lati, longi);
 
 		nodos.putInSet(idVertex, vertex);
 		marked.putInSet(idVertex, 0);

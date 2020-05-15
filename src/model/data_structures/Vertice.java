@@ -1,16 +1,29 @@
 package model.data_structures;
 
+import model.logic.Comparendo;
+import model.logic.EstacionPolicia;
+
 public class Vertice<K extends Comparable <K>, V, C>implements Comparable<Vertice<K , V, C>> {
 
 	private K key;
 	private V value;
+	private double latitud;
+	private double longitud;
+	private C cost;
 	private ListaDoblementeEncadenada<Arco>list;
-	
-	public Vertice(K key, V value) {
+	private ListaDoblementeEncadenada<Comparendo>listaComparendos;
+	private ListaDoblementeEncadenada<EstacionPolicia>listaPolicias;
+	public Vertice(K key, V value,C cost, double latitud, double longitud) {
 		
 		this.key = key;
 		this.value = value;
+		this.cost= cost;
+		this.latitud=latitud;
+		this.longitud=longitud;
 		list= new ListaDoblementeEncadenada();
+		listaComparendos= new ListaDoblementeEncadenada();
+		listaPolicias= new ListaDoblementeEncadenada();
+		
 	}
     public void anadiraListadeArcos(Arco arco) {
     	list.insertarFinal(arco);
@@ -19,6 +32,15 @@ public class Vertice<K extends Comparable <K>, V, C>implements Comparable<Vertic
     {
     	return list;
     }
+    public C getCost() {
+    	return cost;
+    }
+    public double getLatitud() {
+		return latitud;
+	}
+    public double getLongitud() {
+		return longitud;
+	}
 	public K getKey() {
 		return key;
 	}
