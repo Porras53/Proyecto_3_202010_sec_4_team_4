@@ -107,6 +107,7 @@ public class HashSeparateChaining <K extends Comparable<K>, V extends Comparable
 	public ListaDoblementeEncadenada<V> getSet(K key){
 		NodoHash22<K,ListaDoblementeEncadenada<V>> variable= nodosSet[hash(key)];
 		ListaDoblementeEncadenada<V> resp=null;
+		
 		while (variable!=null)
 		{
 			if(variable.darE().equals(key))

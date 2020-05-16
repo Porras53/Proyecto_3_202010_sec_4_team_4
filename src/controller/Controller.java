@@ -78,7 +78,15 @@ public class Controller {
 				view.printMessage("--------- \n Hasta pronto !! \n---------"); 
 				lector.close();
 				fin = true;
+				break;
+				
+			case 6: 
+				modelo.pruebaMaps();
 				break;	
+				
+			case 7:
+				modelo.anadirComparendosalgrafo();
+				break;
 
 			default: 
 				view.printMessage("--------- \n Opcion Invalida !! \n---------");

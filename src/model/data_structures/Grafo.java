@@ -24,8 +24,8 @@ public class Grafo<K extends Comparable <K>, V, C> {
 	}
 
 
-	public void addVertex(K idVertex, V infoVertex, C cost, double lati, double longi) {
-		Vertice <K,V,C> vertex=new Vertice(idVertex, infoVertex, cost, lati, longi);
+	public void addVertex(K idVertex, V infoVertex) {
+		Vertice <K,V,C> vertex=new Vertice(idVertex, infoVertex);
 
 		nodos.putInSet(idVertex, vertex);
 		marked.putInSet(idVertex, 0);
@@ -60,14 +60,14 @@ public class Grafo<K extends Comparable <K>, V, C> {
 	}
 
 
-	public void addEdge(K idVertexIni, K idVertexFin, Double cost) {
+	public void addEdge(K idVertexIni, K idVertexFin, Double cost,Double cost2) {
 
 		if( nodos.getSet(idVertexFin)!=null && nodos.getSet(idVertexIni)!=null) {
 
 			Vertice v1=nodos.getSet(idVertexIni).darCabeza();
 			Vertice v2=nodos.getSet(idVertexFin).darCabeza();
-			Arco object=new Arco (v1, v2, cost);
-			Arco object2=new Arco (v2, v1, cost);
+			Arco object=new Arco (v1, v2, cost,cost2);
+			Arco object2=new Arco (v2, v1, cost,cost2);
 			list.insertarFinal(object);
 			v1.anadiraListadeArcos(object);
 			v2.anadiraListadeArcos(object2);
@@ -76,13 +76,13 @@ public class Grafo<K extends Comparable <K>, V, C> {
 
 	}
 	
-	public void addEdge2(K idVertexIni, K idVertexFin, Double cost) {
+	public void addEdge2(K idVertexIni, K idVertexFin, Double cost,Double cost2) {
 
 		if( nodos.getSet(idVertexFin)!=null && nodos.getSet(idVertexIni)!=null) {
 
 			Vertice v1=nodos.getSet(idVertexIni).darCabeza();
 			Vertice v2=nodos.getSet(idVertexFin).darCabeza();
-			Arco object=new Arco (v1, v2, cost);
+			Arco object=new Arco (v1, v2, cost,cost2);
 			list.insertarFinal(object);
 			v1.anadiraListadeArcos(object);
 
