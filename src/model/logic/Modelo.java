@@ -127,7 +127,7 @@ public class Modelo {
 
 			
 			
-			String dir1= "./data/Comparendos_DEI_2018_Bogotá_D.C_small_50000_sorted.geojson";
+			String dir1= "./data/comparendos_dei_2018.geojson.json";
 			
 			File archivocomparendos= new File(dir1);
 			JsonReader reader= new JsonReader( new InputStreamReader(new FileInputStream(archivocomparendos)));
@@ -270,7 +270,7 @@ public class Modelo {
 		System.out.println("El comparendo con mayor Object ID encontrado fue: "+ datosArbol.max().toString());
 		
 		System.out.println("Cantidad de estaciones de policia es de: "+this.estaciones.darLongitud());
-		System.out.println("La estación de policía con mayor Object ID encontrado fue: "+this.estaciones.darUltimo().toString());
+		System.out.println("La estaciï¿½n de policï¿½a con mayor Object ID encontrado fue: "+this.estaciones.darUltimo().toString());
 		
 		System.out.println("Total de vertices: "+grafo.V());
 		System.out.println("El vertice con mayor Object ID encontrado fue de :");
@@ -799,6 +799,11 @@ public class Modelo {
 		Iterator<KeyComparendo> iterator= resultado.iterator();
 		
 		int e=0;
+		ListaDoblementeEncadenada<Arco> lista =grafo.getList();
+		for (Arco arco : lista) {
+			System.out.println(arco.getCosto());
+			
+		}
 		while(iterator.hasNext()) 
 		{
 			
@@ -846,6 +851,7 @@ public class Modelo {
 			
 		}
 		System.out.println("numero de compa: "+e);
+		
 	}
 	
 	public void crearCuadrantes() {
@@ -950,7 +956,14 @@ public class Modelo {
 		datos[j]=t;
 	}
 
-
+    public ListaDoblementeEncadenada parteBpunto1(double latitud1, double longitud1, double latitud2, double longitud2)
+    {  
+        int id1= encontrarVertice(latitud1, longitud1);
+        int id2= encontrarVertice(latitud2, longitud2);
+    	Dijkstra algoritmo =new Dijkstra(grafo, id1);
+    	return algoritmo.camino(id2);
+    	
+    }
 
 
 
