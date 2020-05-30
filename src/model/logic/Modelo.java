@@ -50,24 +50,33 @@ public class Modelo {
 
 	private static final Double LATMIN =4.597714;
 	private static final Double LATMAX = 4.621360;
-	
+
 	private Sectores cuadrantes;
 	private Double latmenor=1000.0;
 	private Double latmax=0.0;
 	private Double longmenor=1000.0;
-	private Double longmax=-1000.0; 
-	
-	
-	
+	private Double longmax=-1000.0;
+
+	private Double latmenorver=1000.0;
+	private Double latmaxver=0.0;
+	private Double longmenorver=1000.0;
+	private Double longmaxver=-1000.0;
+
+
+
 	private static final int N=20;
 
 	private Grafo grafo;
 
 	private Grafo grafojson;
-	
+
 	private ArbolRojoNegroBTS datosArbol;
 
 	private ListaDoblementeEncadenada<EstacionPolicia> estaciones;
+	
+	private HashSeparateChaining verticessinarcos ;
+	
+	private MaxHeapCP<Comparendo> heapgravedadcomparendos;
 
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
@@ -78,6 +87,8 @@ public class Modelo {
 		grafojson= new Grafo();
 		datosArbol= new ArbolRojoNegroBTS();
 		estaciones= new ListaDoblementeEncadenada<EstacionPolicia>();
+		verticessinarcos =new HashSeparateChaining();
+		heapgravedadcomparendos= new MaxHeapCP<Comparendo>();
 	}
 
 	/**
@@ -94,8 +105,8 @@ public class Modelo {
 		String dirvertices= "./data/bogota_vertices.txt";
 		String dirarcos= "./data/bogota_arcos.txt";
 		String dir= "./data/estacionpolicia.geojson.json";
-		
-		
+
+
 		File archivovertices= new File(dirvertices);
 		FileReader f = new FileReader(archivovertices);
 		BufferedReader b = new BufferedReader(f);
@@ -120,20 +131,55 @@ public class Modelo {
 				coordenadas.insertarFinal(longitud);
 				coordenadas.insertarFinal(latitud);
 
-				grafo.addVertex(id, coordenadas);
+				/**	if(latitud>latmaxver) 
+				{
+					latmaxver=latitud;
+				}
+				if(latitud <latmenorver) 
+				{
+					latmenorver=latitud;
+				}
+				if(longitud>longmaxver) 
+				{
+					longmaxver=longitud;
+				}
+				if(longitud<longmenorver) 
+				{
+					longmenorver=longitud;
+				} **/
+
+				if(latitud>latmax) 
+				{
+					latmax=latitud;
+				}
+				if(latitud <latmenor) 
+				{
+					latmenor=latitud;
+				}
+				if(longitud>longmax) 
+				{
+					longmax=longitud;
+				}
+				if(longitud<longmenor) 
+				{
+					longmenor=longitud;
+				}
+
+				grafo.addVertex (id, coordenadas,latitud,longitud);
 
 			}
 			b.close();
 
+			verticessinarcos =grafo.getNodos();
 			
 			
-			String dir1= "./data/comparendos_dei_2018.geojson.json";
-			
+			String dir1= "./data/Comparendos_DEI_2018_Bogotá_D.C_small_50000_sorted.geojson";
+
 			File archivocomparendos= new File(dir1);
 			JsonReader reader= new JsonReader( new InputStreamReader(new FileInputStream(archivocomparendos)));
 			JsonObject gsonObj0= JsonParser.parseReader(reader).getAsJsonObject();
-			
-			
+
+
 			JsonArray comparendos=gsonObj0.get("features").getAsJsonArray();
 			int g=0;
 			while(g<comparendos.size())
@@ -157,32 +203,17 @@ public class Modelo {
 				JsonArray gsonArrcoordenadas= gsonObjgeometria.get("coordinates").getAsJsonArray();
 				double longitud= gsonArrcoordenadas.get(0).getAsDouble();
 				double latitud= gsonArrcoordenadas.get(1).getAsDouble();
-				
-				if(latitud>latmax) 
-				{
-					latmax=latitud;
-				}
-				if(latitud <latmenor) 
-				{
-					latmenor=latitud;
-				}
-				if(longitud>longmax) 
-				{
-					longmax=longitud;
-				}
-				if(longitud<longmenor) 
-				{
-					longmenor=longitud;
-				}
-				
+
+
 				Comparendo agregar=new Comparendo(objid, fecha,mediodeteccion,clasevehiculo, tiposervi, infraccion, desinfraccion, localidad, municipio ,longitud,latitud);
 				datosArbol.put(agregar.getLlave(), agregar);
+				heapgravedadcomparendos.agregar(agregar);
 				g++;
 			} 
-			
+
 			crearCuadrantes();
-			anadirComparendosalgrafo20();
-			
+			//anadirComparendosalgrafo20();
+
 
 			while((cadena1=b2.readLine())!=null) 
 			{
@@ -202,10 +233,10 @@ public class Modelo {
 						Double longitudfinal=(Double)((ListaDoblementeEncadenada)grafo.getInfoVertex(idactual)).darCabeza();
 
 						double distanciaconverticeactual = distance(latitudinicial, longitudinicial,latitudfinal,longitudfinal);
-						
+
 						double numerodecompa= ((ListaDoblementeEncadenada)grafo.getInfoVertex(idactual)).darLongitud() + ((ListaDoblementeEncadenada)grafo.getInfoVertex(idprincipal)).darLongitud()- 4;
-						
-						
+
+
 						grafo.addEdge2(idprincipal, idactual, distanciaconverticeactual, numerodecompa);
 					}
 
@@ -226,9 +257,9 @@ public class Modelo {
 
 		JsonReader reader1= new JsonReader( new InputStreamReader(new FileInputStream(archivo)));
 		JsonObject gsonObj02= JsonParser.parseReader(reader1).getAsJsonObject();
-		
-//(OBJECTID, EPODESCRIP, EPODIR_SITIO,EPOLATITUD, EPOLONGITU, EPOSERVICIO, EPOHORARIO, EPOTELEFON, EPOIULOCAL) 
-		
+
+		//(OBJECTID, EPODESCRIP, EPODIR_SITIO,EPOLATITUD, EPOLONGITU, EPOSERVICIO, EPOHORARIO, EPOTELEFON, EPOIULOCAL) 
+
 		JsonArray estaciones=gsonObj02.get("features").getAsJsonArray();
 		int i=0;
 		while(i<estaciones.size())
@@ -246,44 +277,44 @@ public class Modelo {
 
 			Double longitud= gsonObjpropiedades.get("EPOLONGITU").getAsDouble();
 			Double latitud= gsonObjpropiedades.get("EPOLATITUD").getAsDouble();
-			
+
 			String servicio= gsonObjpropiedades.get("EPOSERVICIO").getAsString();
 			String horario= gsonObjpropiedades.get("EPOHORARIO").getAsString();
 			String telefono= gsonObjpropiedades.get("EPOTELEFON").getAsString();
 			String local= gsonObjpropiedades.get("EPOIULOCAL").getAsString();
-            
+
 			EstacionPolicia agregar=new EstacionPolicia(objid,longitud,latitud ,direccion, descripcion, correo,servicio,horario,telefono,local);
 			this.estaciones.insertarFinal(agregar);
 			i++;
 		}
-		
+
 		//anadirPoliciasalgrafo();
-		
-		
+
+
 
 		long fin2 = System.nanoTime();
 		long fin = System.currentTimeMillis();
 
 		System.out.println((fin2-inicio2)/1.0e9 +" segundos, de la carga de datos normal.");
-		
+
 		System.out.println("El total de comparendos cargados fue de: " + datosArbol.size());
 		System.out.println("El comparendo con mayor Object ID encontrado fue: "+ datosArbol.max().toString());
-		
+
 		System.out.println("Cantidad de estaciones de policia es de: "+this.estaciones.darLongitud());
-		System.out.println("La estaciï¿½n de policï¿½a con mayor Object ID encontrado fue: "+this.estaciones.darUltimo().toString());
-		
+		System.out.println("La estación de policía con mayor Object ID encontrado fue: "+this.estaciones.darUltimo().toString());
+
 		System.out.println("Total de vertices: "+grafo.V());
 		System.out.println("El vertice con mayor Object ID encontrado fue de :");
-		
+
 		System.out.println("Total de arcos: "+grafo.E());
 		System.out.println("El arco con mayor Object ID encontrado fue de :");
-		
+
 		//escribirJson();
 		//leerJson();
-		
+
 		//pruebaMaps();
-		
-		
+
+
 	}
 
 
@@ -381,7 +412,7 @@ public class Modelo {
 			ListaDoblementeEncadenada posicion= new ListaDoblementeEncadenada();
 			posicion.insertarFinal(longitud);
 			posicion.insertarFinal(latitud);
-			grafojson.addVertex(idvertice, posicion);
+			grafojson.addVertex(idvertice, posicion,latitud,longitud);
 			++i;
 		}
 
@@ -414,6 +445,557 @@ public class Modelo {
 
 	}
 
+
+	public void parteA1(Double longitud1, Double latitud1, Double longitud2, Double latitud2) 
+	{
+		Vertice ver1=null;
+		Vertice ver2=null;
+
+		for(int x=0;x<2;x++) 
+		{
+
+			Double lat1=0.0;
+			Double lon1=0.0;
+
+			if(x==0) 
+			{
+				lat1=latitud1;
+				lon1=longitud1;
+			}
+			else 
+			{
+				lat1=latitud2;
+				lon1=longitud2;
+			}
+
+			Vertice menor= null;
+			Double menordistancia=10000.0;
+
+			Integer idcuadrante=cuadrantes.elSectorenelqueesta(lat1, lon1);
+
+
+			if(idcuadrante==-1) 
+			{
+				
+				System.out.println("Las coordenadas ingresadas no estan dentro de lo delimitado de la ciudad");
+				return;
+			}
+
+
+			Node<Vertice> actual22= cuadrantes.getSector(idcuadrante).getVertices().darCabeza2();
+
+			while(actual22!=null) 
+			{
+				Double lat2= (Double) ((ListaDoblementeEncadenada) actual22.darE().getValue()).darCabeza2().darSiguiente().darE();
+				Double long2=(Double) ((ListaDoblementeEncadenada) actual22.darE().getValue()).darCabeza();
+
+				Double distancia=distance(lat1, lon1,lat2,long2);
+
+				if(distancia<menordistancia) 
+				{
+					menordistancia=distancia;
+					menor=actual22.darE();
+				}
+
+				actual22=actual22.darSiguiente();
+
+
+			}
+
+
+			if(menor!=null && x==0) {
+				ver1=menor;
+
+			}
+			else if (menor!=null && x==1) 
+			{
+				ver2=menor;
+			}
+			else 
+			{
+				return;
+			}
+
+
+		}
+		
+		//System.out.println(ver1.toString() +"     "+ver2.toString());
+		CC compnuevo= new CC(grafo);
+	   // System.out.println(compnuevo.connected((Integer)ver1.getKey(), (Integer)ver2.getKey()));
+	    
+	    DijkstraUndirectedSP grafomascorto2= new DijkstraUndirectedSP(grafo,(Integer) ver1.getKey());
+	    
+		Integer numver= compnuevo.id((Integer)ver1.getKey());
+		Integer numver2= compnuevo.id((Integer)ver2.getKey());
+		int[] juas=compnuevo.getId();
+		boolean encon= false;
+		for(int i=0; i<juas.length && (!encon); i++) 
+		{
+			if(numver==juas[i]) 
+			{
+				//System.out.println(grafo.getVertex(i).toString());
+				encon=true;
+			}
+			
+		}
+		
+		encon= false;
+		for(int i=0; i<juas.length && (!encon); i++) 
+		{
+			if(numver2==juas[i]) 
+			{
+				//System.out.println(grafo.getVertex(i).toString());
+				encon=true;
+			}
+			
+		}
+		
+	 
+	 if(grafomascorto2.hasPathTo((Integer)ver2.getKey())) 
+	  {
+		
+		
+	 final String body1="<!DOCTYPE html>\n" + 
+				"		<html>\n" + 
+				"		  <head>\n" + 
+				"		    <title>Simple Map</title>\n" + 
+				"		    <meta name=\"viewport\" content=\"initial-scale=1.0\">\n" + 
+				"		    <meta charset=\"utf-8\">\n" + 
+				"		    <style>\n" + 
+				"		     \n" + 
+				"		      #map {\n" + 
+				"		        height: 100%;\n" + 
+				"		      }\n" + 
+				"		      \n" + 
+				"		      html, body {\n" + 
+				"		        height: 100%;\n" + 
+				"		        margin: 0;\n" + 
+				"		        padding: 0;\n" + 
+				"		      }\n" + 
+				"		    </style>\n" + 
+				"		  </head>\n" + 
+				"		  <body>" +
+				"<div id=\"map\"></div>\n" + 
+				"    <script>";
+
+		final String body2="</script>\n" + 
+				"    <script src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyBU3B0Mqn6Ez18yIhVuLYt397FGKCKOBPw&callback=initMap\"\n" + 
+				"    async defer></script>\n" + 
+				"  </body>\n" + 
+				"</html>"
+				;
+
+
+		String[] coordenadas= {"4.609537", "-74.078715"};
+		File file = new File("./data/punto1A.html");
+
+		try {
+			PrintWriter writer= new PrintWriter(file);
+
+			writer.println(body1);
+			writer.println("var loc={lat:"+coordenadas[0]+", lng:"+coordenadas[1]+"}; \n");
+			writer.println("var map;");
+			writer.println("var pos1 = { lat:"+ver1.getLatitud()+", lng:"+ver1.getLongitud()+"}; ");
+			writer.println("var pos2 = { lat:"+ver2.getLatitud()+", lng:"+ver2.getLongitud()+"}; ");
+
+			String vertices="var vertices= { \n";
+
+			String lineas="var lineas = { \n";
+
+			ListaDoblementeEncadenada<Arco> arcos = grafomascorto2.pathTo((Integer)ver2.getKey());
+
+			Node<Arco> actual= arcos.darCabeza2();
+			int k=0;
+
+			Vertice vertice1coor=null;
+			Vertice vertice2coor=null;
+
+			Double lat1=0.0;
+			Double lat2=0.0;
+			Double long1=0.0;
+			Double long2=0.0;
+			
+			Double num=0.0;
+			long inicio2 = System.nanoTime();
+			while(actual!=null) 
+			{
+					num+=(Double)actual.darE().getCosto();
+
+				vertice1coor=actual.darE().getvInicio();
+				vertice2coor=actual.darE().getvFinal();
+
+				lat1=vertice1coor.getLatitud();
+				lat2=vertice2coor.getLatitud();
+				long1=vertice1coor.getLongitud();
+				long2=vertice2coor.getLongitud();
+				System.out.println(vertice1coor.toString());
+				System.out.println(vertice2coor.toString());
+					
+					if(k!=0) {
+						vertices+=",\n";
+						lineas+=",\n";
+					}
+					vertices+= "vertia"+k+": {\r\n" + 
+							"    center: {lat: "+lat1+", lng: "+long1+"}\r\n" + 
+
+							"  },\n";
+
+					vertices+= "vertib"+k+": {\r\n" + 
+							"    center: {lat: "+lat2+", lng: "+long2+"}\r\n" + 
+
+							"  }";
+
+
+
+					lineas+="linea"+k+": {\r\n" + 
+							"    lat1: "+lat1+",\r\n" + 
+							"    lat2: "+lat2+",\r\n" + 
+							"    long1: "+long1+",\r\n" + 
+							"    long2: "+long2+"\r\n" + 
+							"  }\n";
+
+
+					k++;
+
+				actual=actual.darSiguiente();
+			}
+			//System.out.println(k);
+			long fin2 = System.nanoTime();
+			System.out.println((fin2-inicio2)/1.0e9 +" segundos, de la carga de datos normal.");
+			
+			
+			vertices+="};\n";
+			lineas+="};\n";
+			System.out.println("El costo total de este MST es: "+num); 
+			
+			writer.println(vertices);
+			writer.println(lineas);
+
+			writer.println("function initMap() {\n" + 
+					"        map = new google.maps.Map(document.getElementById('map'), {\n" + 
+					"          center: pos1,\n" + 
+					"          zoom: 15\n" + 
+					"        });\n");
+
+			long inicio3 = System.nanoTime();	
+			
+			writer.println("for (var vertice in vertices) {\r\n" + 
+					"    var vert = new google.maps.Circle({\r\n" + 
+					"      strokeColor: '#000000',\r\n" + 
+					"      strokeOpacity: 0.8,\r\n" + 
+					"      strokeWeight: 2,\r\n" + 
+					"      fillColor: '#000000',\r\n" + 
+					"      fillOpacity: 0.35,\r\n" + 
+					"      map: map,\r\n" + 
+					"      center: vertices[vertice].center,\r\n" + 
+					"      radius: 3\r\n" + 
+					"    });\r\n" + 
+					"  }\n");
+			
+			writer.println("var marker = new google.maps.Marker({\r\n" + 
+					"    position: pos1 ,\r\n" + 
+					"    map: map,\r\n" + 
+					"    title: 'Vertice 1'\r\n" + 
+					"  });");
+			
+			writer.println("var marker = new google.maps.Marker({\r\n" + 
+					"    position: pos2 ,\r\n" + 
+					"    map: map,\r\n" + 
+					"    title: 'Vertice 2'\r\n" + 
+					"  });");
+
+			writer.println("for (var arc in lineas) {\r\n" + 
+					"var li = [\r\n" + 
+					"{lat: lineas[arc].lat1 , lng: lineas[arc].long1},\r\n" + 
+					"{lat: lineas[arc].lat2 , lng: lineas[arc].long2}\r\n" + 
+					"];\r\n" + 
+					"var flightPath = new google.maps.Polyline({\r\n" + 
+					"    path: li,\r\n" + 
+					"    geodesic: true,\r\n" + 
+					"    strokeColor: '#000000',\r\n" + 
+					"    strokeOpacity: 1.0,\r\n" + 
+					"    strokeWeight: 2\r\n" + 
+					"  });  "
+					+ "flightPath.setMap(map);"
+					+ "}\r\n" + 
+					"  }"
+					);
+		
+			long fin3 = System.nanoTime();
+			System.out.println((fin3-inicio3)/1.0e9 +" segundos, de la creación del mapa.");
+			writer.println(body2);
+			writer.close();
+
+			File f= new File("data/punto1A.html");
+
+			try {
+				java.awt.Desktop.getDesktop().browse(f.toURI());
+			}
+			catch (IOException e) {
+
+				e.printStackTrace();
+			}
+
+
+
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} 
+		
+	  }
+	 
+	 else 
+	 {
+		 System.out.println("Los vertices no se encuentran conectados");
+	 }
+
+	}
+
+	public void parteA2(Integer m) 
+	{
+		ListaDoblementeEncadenada<Integer> verticesss=new ListaDoblementeEncadenada<Integer>();
+		
+		for(int i=0;i<m;i++) 
+		{
+			Comparendo com=heapgravedadcomparendos.eliminarMayor();
+			Double lat1=com.getLatitud();
+			Double lon1=com.getLongitud();
+			Vertice menor= null;
+			Double menordistancia=10000.0;
+			Integer idcuadrante=cuadrantes.elSectorenelqueesta(lat1, lon1);
+			Node<Vertice> actual22= cuadrantes.getSector(idcuadrante).getVertices().darCabeza2();
+			while(actual22!=null) 
+			{
+				Double lat2= (Double) ((ListaDoblementeEncadenada) actual22.darE().getValue()).darCabeza2().darSiguiente().darE();
+				Double long2=(Double) ((ListaDoblementeEncadenada) actual22.darE().getValue()).darCabeza();
+
+				Double distancia=distance(lat1, lon1,lat2,long2);
+
+				if(distancia<menordistancia) 
+				{
+					menordistancia=distancia;
+					menor=actual22.darE();
+				}
+
+				actual22=actual22.darSiguiente();
+			}
+			
+			if(menor!=null)
+			{
+				verticesss.insertarFinal((Integer)menor.getKey());
+			}
+			
+		}
+		Grafo finalgrafo= new Grafo();
+		Node<Integer> actualverti= verticesss.darCabeza2();
+		while(actualverti!=null) 
+		{
+			Vertice v=grafo.getVertex(actualverti.darE());
+			
+			// FALTA MEJORAR ESTO 
+			Node<Arco> n=v.darListaArcos().darCabeza2();
+			while(n!=null) 
+			{
+				n.darE().setCosto((Double)n.darE().getCosto()*10000);
+				finalgrafo.addEdge(n.darE());
+				n=n.darSiguiente();
+			}
+			
+			actualverti=actualverti.darSiguiente();
+		}
+		System.out.println(finalgrafo.V());
+		System.out.println(finalgrafo.E());
+		LazyPrimMST mstfinal= new LazyPrimMST(finalgrafo);
+		
+		
+		final String body1="<!DOCTYPE html>\n" + 
+				"		<html>\n" + 
+				"		  <head>\n" + 
+				"		    <title>Simple Map</title>\n" + 
+				"		    <meta name=\"viewport\" content=\"initial-scale=1.0\">\n" + 
+				"		    <meta charset=\"utf-8\">\n" + 
+				"		    <style>\n" + 
+				"		     \n" + 
+				"		      #map {\n" + 
+				"		        height: 100%;\n" + 
+				"		      }\n" + 
+				"		      \n" + 
+				"		      html, body {\n" + 
+				"		        height: 100%;\n" + 
+				"		        margin: 0;\n" + 
+				"		        padding: 0;\n" + 
+				"		      }\n" + 
+				"		    </style>\n" + 
+				"		  </head>\n" + 
+				"		  <body>" +
+				"<div id=\"map\"></div>\n" + 
+				"    <script>";
+
+		final String body2="</script>\n" + 
+				"    <script src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyBU3B0Mqn6Ez18yIhVuLYt397FGKCKOBPw&callback=initMap\"\n" + 
+				"    async defer></script>\n" + 
+				"  </body>\n" + 
+				"</html>"
+				;
+
+
+		String[] coordenadas= {"4.609537", "-74.078715"};
+		File file = new File("./data/punto2A.html");
+
+		try {
+			PrintWriter writer= new PrintWriter(file);
+
+			writer.println(body1);
+			writer.println("var loc={lat:"+coordenadas[0]+", lng:"+coordenadas[1]+"}; \n");
+			writer.println("var map;");
+			String vertices="var vertices= { \n";
+
+			String lineas="var lineas = { \n";
+
+			ListaDoblementeEncadenada<Arco> arcos = mstfinal.edges2();
+			System.out.println(arcos.darLongitud());
+			Node<Arco> actual= arcos.darCabeza2();
+			int k=0;
+
+			Vertice vertice1coor=null;
+			Vertice vertice2coor=null;
+
+			Double lat1=0.0;
+			Double lat2=0.0;
+			Double long1=0.0;
+			Double long2=0.0;
+			
+			Double num=0.0;
+			long inicio2 = System.nanoTime();
+			while(actual!=null) 
+			{
+					num+=(Double)actual.darE().getCosto();
+
+				vertice1coor=actual.darE().getvInicio();
+				vertice2coor=actual.darE().getvFinal();
+
+				lat1=vertice1coor.getLatitud();
+				lat2=vertice2coor.getLatitud();
+				long1=vertice1coor.getLongitud();
+				long2=vertice2coor.getLongitud();
+				//System.out.println(vertice1coor.toString());
+				//System.out.println(vertice2coor.toString());
+					
+					if(k!=0) {
+						vertices+=",\n";
+						lineas+=",\n";
+					}
+					vertices+= "vertia"+k+": {\r\n" + 
+							"    center: {lat: "+lat1+", lng: "+long1+"}\r\n" + 
+
+							"  },\n";
+
+					vertices+= "vertib"+k+": {\r\n" + 
+							"    center: {lat: "+lat2+", lng: "+long2+"}\r\n" + 
+
+							"  }";
+
+
+
+					lineas+="linea"+k+": {\r\n" + 
+							"    lat1: "+lat1+",\r\n" + 
+							"    lat2: "+lat2+",\r\n" + 
+							"    long1: "+long1+",\r\n" + 
+							"    long2: "+long2+"\r\n" + 
+							"  }\n";
+
+
+					k++;
+
+				actual=actual.darSiguiente();
+			}
+			//System.out.println(k);
+			long fin2 = System.nanoTime();
+			System.out.println((fin2-inicio2)/1.0e9 +" segundos, de la carga de datos normal.");
+			
+			
+			vertices+="};\n";
+			lineas+="};\n";
+			System.out.println("El costo total de este MST es: "+num); 
+			
+			writer.println(vertices);
+			writer.println(lineas);
+
+			writer.println("function initMap() {\n" + 
+					"        map = new google.maps.Map(document.getElementById('map'), {\n" + 
+					"          center: loc,\n" + 
+					"          zoom: 15\n" + 
+					"        });\n");
+
+			long inicio3 = System.nanoTime();	
+			
+			writer.println("for (var vertice in vertices) {\r\n" + 
+					"    var vert = new google.maps.Circle({\r\n" + 
+					"      strokeColor: '#000000',\r\n" + 
+					"      strokeOpacity: 0.8,\r\n" + 
+					"      strokeWeight: 2,\r\n" + 
+					"      fillColor: '#000000',\r\n" + 
+					"      fillOpacity: 0.35,\r\n" + 
+					"      map: map,\r\n" + 
+					"      center: vertices[vertice].center,\r\n" + 
+					"      radius: 3\r\n" + 
+					"    });\r\n" + 
+					"  }\n");
+			
+			writer.println("var marker = new google.maps.Marker({\r\n" + 
+					"    position: pos1 ,\r\n" + 
+					"    map: map,\r\n" + 
+					"    title: 'Vertice 1'\r\n" + 
+					"  });");
+			
+			writer.println("var marker = new google.maps.Marker({\r\n" + 
+					"    position: pos2 ,\r\n" + 
+					"    map: map,\r\n" + 
+					"    title: 'Vertice 2'\r\n" + 
+					"  });");
+
+			writer.println("for (var arc in lineas) {\r\n" + 
+					"var li = [\r\n" + 
+					"{lat: lineas[arc].lat1 , lng: lineas[arc].long1},\r\n" + 
+					"{lat: lineas[arc].lat2 , lng: lineas[arc].long2}\r\n" + 
+					"];\r\n" + 
+					"var flightPath = new google.maps.Polyline({\r\n" + 
+					"    path: li,\r\n" + 
+					"    geodesic: true,\r\n" + 
+					"    strokeColor: '#000000',\r\n" + 
+					"    strokeOpacity: 1.0,\r\n" + 
+					"    strokeWeight: 2\r\n" + 
+					"  });  "
+					+ "flightPath.setMap(map);"
+					+ "}\r\n" + 
+					"  }"
+					);
+		
+			long fin3 = System.nanoTime();
+			System.out.println((fin3-inicio3)/1.0e9 +" segundos, de la creación del mapa.");
+			writer.println(body2);
+			writer.close();
+
+			File f= new File("data/punto2A.html");
+
+			try {
+				java.awt.Desktop.getDesktop().browse(f.toURI());
+			}
+			catch (IOException e) 
+			{
+
+				e.printStackTrace();
+			}
+		}
+		
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} 
+	
+		
+	}
+	
 	public void dibujarTodin() 
 	{
 		JFrame frame= new JFrame("Grafito");
@@ -444,18 +1026,18 @@ public class Modelo {
 							map.setZoom(15.0);
 
 							ListaDoblementeEncadenada<Arco> arcos=grafojson.getList();
-							
-							
+
+
 							Node<EstacionPolicia> actualpol= estaciones.darCabeza2();
 							while(actualpol!=null) 
 							{
 								Double longitud=actualpol.darE().getLongitud();
 								Double latitud=actualpol.darE().getLatitud();
-								
+
 								if(longitud<=LONGMAX && longitud>=LONGMIN && latitud<=LATMAX && latitud>=LATMIN) 
 								{
 									LatLng poli=new LatLng(latitud,longitud);
-									
+
 									Circle pol=new Circle(map);
 									pol.setCenter(poli);
 									pol.setRadius(20);
@@ -463,11 +1045,11 @@ public class Modelo {
 									co.setFillColor("#CB3234");
 									pol.setOptions(co);
 									pol.setVisible(true);
-									
+
 								}
 								actualpol=actualpol.darSiguiente();
 							}
-							
+
 							Node<Arco> actual= arcos.darCabeza2();
 							while(actual!=null) 
 							{
@@ -525,12 +1107,12 @@ public class Modelo {
 
 	}
 
-	
+
 	public void pruebaMaps() 
 	{
-		
-		
-		
+
+
+
 		final String body1="<!DOCTYPE html>\n" + 
 				"		<html>\n" + 
 				"		  <head>\n" + 
@@ -553,98 +1135,98 @@ public class Modelo {
 				"		  <body>" +
 				"<div id=\"map\"></div>\n" + 
 				"    <script>";
-		
+
 		final String body2="</script>\n" + 
 				"    <script src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyBU3B0Mqn6Ez18yIhVuLYt397FGKCKOBPw&callback=initMap\"\n" + 
 				"    async defer></script>\n" + 
 				"  </body>\n" + 
 				"</html>"
 				;
-		
-		
+
+
 		String[] coordenadas= {"4.609537", "-74.078715"};
 		File file = new File("./data/prueba.html");
-		
+
 		try {
 			PrintWriter writer= new PrintWriter(file);
-			
+
 			writer.println(body1);
 			writer.println("var loc={lat:"+coordenadas[0]+", lng:"+coordenadas[1]+"}; \n");
 			writer.println("var map;");
-			
+
 			String vertices="var vertices= { \n";
-			
+
 			String lineas="var lineas = { \n";
-			
+
 			ListaDoblementeEncadenada<Arco> arcos=grafojson.getList();
-			
+
 			Node<Arco> actual= arcos.darCabeza2();
 			int k=0;
-			
+
 			ListaDoblementeEncadenada<Double> vertice1coor=null;
 			ListaDoblementeEncadenada<Double> vertice2coor=null;
-			
+
 			while(actual!=null) 
 			{
-				
-			
+
+
 				vertice1coor=(ListaDoblementeEncadenada<Double>)actual.darE().getvInicio().getValue();
 				vertice2coor=(ListaDoblementeEncadenada<Double>)actual.darE().getvFinal().getValue();
-				
+
 				Double lat1=(Double)vertice1coor.darCabeza2().darSiguiente().darE();
 				Double lat2=(Double)vertice2coor.darCabeza2().darSiguiente().darE();
 				Double long1=vertice1coor.darCabeza();
 				Double long2=vertice2coor.darCabeza();
-				
 
-				
+
+
 				if(long1<=LONGMAX && long1>=LONGMIN && long2<=LONGMAX && long2>=LONGMIN && lat1<=LATMAX && lat1>=LATMIN && lat2<=LATMAX && lat2>=LATMIN) 
 				{	
-					
+
 					if(k!=0) {
-					vertices+=",\n";
-					lineas+=",\n";
+						vertices+=",\n";
+						lineas+=",\n";
 					}
 					vertices+= "vertia"+k+": {\r\n" + 
 							"    center: {lat: "+lat1+", lng: "+long1+"}\r\n" + 
-							
+
 							"  },\n";
-					
+
 					vertices+= "vertib"+k+": {\r\n" + 
 							"    center: {lat: "+lat2+", lng: "+long2+"}\r\n" + 
-							
+
 							"  }";
-					
-				
-					
+
+
+
 					lineas+="linea"+k+": {\r\n" + 
 							"    lat1: "+lat1+",\r\n" + 
 							"    lat2: "+lat2+",\r\n" + 
 							"    long1: "+long1+",\r\n" + 
 							"    long2: "+long2+"\r\n" + 
 							"  }\n";
-					
-					
+
+
 					k++;
-					
+
 				}
-				
+
 				actual=actual.darSiguiente();
-				}
-					
-			
+			}
+
+
 			vertices+="};\n";
 			lineas+="};\n";
-			
+
 			writer.println(vertices);
 			writer.println(lineas);
-			
+
 			writer.println("function initMap() {\n" + 
 					"        map = new google.maps.Map(document.getElementById('map'), {\n" + 
 					"          center: loc,\n" + 
 					"          zoom: 15\n" + 
 					"        });\n");
-			
+
 			writer.println("for (var vertice in vertices) {\r\n" + 
 					"    var vert = new google.maps.Circle({\r\n" + 
 					"      strokeColor: '#FF0000',\r\n" + 
@@ -657,8 +1239,8 @@ public class Modelo {
 					"      radius: 3\r\n" + 
 					"    });\r\n" + 
 					"  }\n");
-			
-			
+
+
 			writer.println("for (var arc in lineas) {\r\n" + 
 					"var li = [\r\n" + 
 					"{lat: lineas[arc].lat1 , lng: lineas[arc].long1},\r\n" + 
@@ -675,52 +1257,52 @@ public class Modelo {
 					+ "}\r\n" + 
 					"  }"
 					);
-			
-			
+
+
 			writer.println(body2);
 			writer.close();
-			
+
 			File f= new File("data/prueba.html");
-			
+
 			try {
 				java.awt.Desktop.getDesktop().browse(f.toURI());
 			}
 			catch (IOException e) {
-				
+
 				e.printStackTrace();
 			}
-			
-			
-			
+
+
+
 		}
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
-		
-		
-		
-		
+
+
+
+
+
 	}
-	
-	
+
+
 	public void anadirPoliciasalgrafo() 
 	{
 		HashSeparateChaining vertices= grafo.getNodos();
-		
+
 		Node<EstacionPolicia> actual= estaciones.darCabeza2();
-		
+
 		while(actual!=null) 
 		{
-			
-			
-			
+
+
+
 			Double lat1=actual.darE().getLatitud();
 			Double lon1=actual.darE().getLongitud();
-			
+
 			Vertice menor= null;
 			Double menordistancia=10000.0;
-			
+
 			int j=0;
 			while(j<vertices.getTamActual()) 
 			{
@@ -728,44 +1310,44 @@ public class Modelo {
 				Double lat2= (Double) lis.darCabeza2().darSiguiente().darE();
 				Double long2=(Double) lis.darCabeza();
 				Double distancia=distance(lat1, lon1,lat2,long2);
-				
+
 				if(distancia<menordistancia) 
 				{
 					menordistancia=distancia;
 					menor=grafo.getVertex(j);
 				}
-				
-			j++;
+
+				j++;
 			}
-			
+
 			((ListaDoblementeEncadenada)menor.getValue()).insertarFinal(actual);
 			actual = actual.darSiguiente();
 		}
-		
-		
-		
+
+
+
 	}
-	
+
 	public void anadirComparendosalgrafo() 
 	{
 		HashSeparateChaining vertices= grafo.getNodos();
-		
+
 		Iterable<KeyComparendo> resultado= datosArbol.keys(datosArbol.min(), datosArbol.max());
-		
+
 		Iterator<KeyComparendo> iterator= resultado.iterator();
 		int e=0;
 		while(iterator.hasNext()&&e<2000) 
 		{
-			
+
 			KeyComparendo llave= (KeyComparendo) iterator.next();
 			Comparendo com=(Comparendo)datosArbol.get(llave);
-			
+
 			Double lat1=com.getLatitud();
 			Double lon1=com.getLongitud();
-			
+
 			Vertice menor= null;
 			Double menordistancia=10000.0;
-			
+
 			int j=0;
 			while(j<vertices.getTamActual()) 
 			{
@@ -773,104 +1355,97 @@ public class Modelo {
 				Double lat2= (Double) lis.darCabeza2().darSiguiente().darE();
 				Double long2=(Double) lis.darCabeza();
 				Double distancia=distance(lat1, lon1,lat2,long2);
-				
+
 				if(distancia<menordistancia) 
 				{
 					menordistancia=distancia;
 					menor=grafo.getVertex(j);
 				}
-				
-			j++;
+
+				j++;
 			}
-			
+
 			((ListaDoblementeEncadenada)menor.getValue()).insertarFinal(com);
 			e++;
 		}
-		
-		
-		
+
+
+
 	}
-	
+
 	public void anadirComparendosalgrafo20() 
 	{
 		HashSeparateChaining vertices= grafo.getNodos();
-		
+
 		Iterable<KeyComparendo> resultado= datosArbol.keys(datosArbol.min(), datosArbol.max());
 		Iterator<KeyComparendo> iterator= resultado.iterator();
-		
+
 		int e=0;
-		ListaDoblementeEncadenada<Arco> lista =grafo.getList();
-		for (Arco arco : lista) {
-			System.out.println(arco.getCosto());
-			
-		}
 		while(iterator.hasNext()) 
 		{
-			
+
 			KeyComparendo llave= (KeyComparendo) iterator.next();
 			Comparendo com=(Comparendo)datosArbol.get(llave);
-			
+
 			Double lat1=com.getLatitud();
 			Double lon1=com.getLongitud();
-			
+
 			Vertice menor= null;
 			Double menordistancia=10000.0;
-			
+
 			Integer idcuadrante=cuadrantes.elSectorenelqueesta(lat1, lon1);
-			
-			
-			
-	
-			
+
+
+
+
+
 			Node<Vertice> actual22= cuadrantes.getSector(idcuadrante).getVertices().darCabeza2();
-			
+
 			while(actual22!=null) 
 			{
 				Double lat2= (Double) ((ListaDoblementeEncadenada) actual22.darE().getValue()).darCabeza2().darSiguiente().darE();
 				Double long2=(Double) ((ListaDoblementeEncadenada) actual22.darE().getValue()).darCabeza();
-				
+
 				Double distancia=distance(lat1, lon1,lat2,long2);
-				
+
 				if(distancia<menordistancia) 
 				{
 					menordistancia=distancia;
 					menor=actual22.darE();
 				}
-				
+
 				actual22=actual22.darSiguiente();
-			
-				
 			}
-			
-			
+
+
 			if(menor!=null) {
-			((ListaDoblementeEncadenada)menor.getValue()).insertarFinal(com);
-			grafo.setInfoVertex(menor.getKey(), menor.getValue());
-			e++;
+				((ListaDoblementeEncadenada)menor.getValue()).insertarFinal(com);
+				grafo.setInfoVertex(menor.getKey(), menor.getValue());
+				e++;
 			}
-			
+
 		}
 		System.out.println("numero de compa: "+e);
-		
 	}
-	
+
 	public void crearCuadrantes() {
-		
-		Double n=30.0;
-		
+
+		Double n=33.0;
+
 		Double intervaloslat=(latmax-latmenor)/n;
-		
+
 		Double intervaloslong=(longmax-longmenor)/n;
 		System.out.println("mayor"+longmax + "  menor:"+ longmenor);
-		
+
 		cuadrantes= new Sectores(latmax,latmenor,longmax,longmenor,intervaloslong,intervaloslat,n);
-		
+
 		//k=x , l=y
 		int cont=0;
 		for(int k=0; k<n;k++) 
 		{
 			Double lataminctual=latmenor+(k*intervaloslat);
 			Double latamaxactual=latmenor+((k+1)*intervaloslat);
+
 			for(int l=0; l<n;l++) 
 			{
 				Double longminactual=longmenor+(l*intervaloslong);
@@ -880,50 +1455,50 @@ public class Modelo {
 				cont++;
 			}
 		}
-		
-		
+
+
 		HashSeparateChaining vertices= grafo.getNodos();
 		int j=0;
 		while(j<vertices.getTamActual()) 
 		{
-			
+
 			Vertice actual= (Vertice)vertices.getSet(j).darCabeza();
 			ListaDoblementeEncadenada lis= (ListaDoblementeEncadenada) actual.getValue();
 			Integer idcuadrante=cuadrantes.elSectorenelqueesta((Double)lis.darCabeza2().darSiguiente().darE(), (Double)lis.darCabeza());
-			
+
 			if(idcuadrante!=-1) {
-			cuadrantes.getSector(idcuadrante).agregarvertice(actual);
+				cuadrantes.getSector(idcuadrante).agregarvertice(actual);
 			}
 			j++;
 		} 
 	}
-	
-	 public int encontrarVertice (double lati, double longi) {
-			
-			Iterator it = grafo.getNodos().keysSet();
-			double menorDistancia=-1;
-			int idMasCercano=-1;
-			while(it.hasNext()) {
-				int actual=(int)it.next();
-				Double struct=(Double)((ListaDoblementeEncadenada) grafo.getInfoVertex(actual)).darCabeza();
-			
-				Double struct2=(Double)((ListaDoblementeEncadenada) grafo.getInfoVertex(actual)).darUltimo();
-				Double calculo=distance(lati,longi,struct2,struct);
-				
-				if(menorDistancia<=-1) {
-					menorDistancia=calculo;
-					idMasCercano=actual;
-				}
-				    
-				else if(calculo<=menorDistancia) {
-					menorDistancia=calculo;
-					idMasCercano=actual;
-				}
-				
+
+	public int encontrarVertice (double lati, double longi) {
+
+		Iterator it = grafo.getNodos().keysSet();
+		double menorDistancia=-1;
+		int idMasCercano=-1;
+		while(it.hasNext()) {
+			int actual=(int)it.next();
+			Double struct=(Double)((ListaDoblementeEncadenada) grafo.getInfoVertex(actual)).darCabeza();
+
+			Double struct2=(Double)((ListaDoblementeEncadenada) grafo.getInfoVertex(actual)).darUltimo();
+			Double calculo=distance(lati,longi,struct2,struct);
+
+			if(menorDistancia<=-1) {
+				menorDistancia=calculo;
+				idMasCercano=actual;
 			}
-			return idMasCercano;
-				
+
+			else if(calculo<=menorDistancia) {
+				menorDistancia=calculo;
+				idMasCercano=actual;
 			}
+
+		}
+		return idMasCercano;
+
+	}
 
 	public static double distance(double startLat, double startLong,
 			double endLat, double endLong) {
@@ -948,6 +1523,11 @@ public class Modelo {
 	{
 		return v.compareTo(w) < 0;
 	}
+	
+	public int componentesConectados() 
+	{
+		return grafo.cc();
+	}
 
 	private void exch(Comparable[] datos,int i, int j)
 	{
@@ -956,14 +1536,7 @@ public class Modelo {
 		datos[j]=t;
 	}
 
-    public ListaDoblementeEncadenada parteBpunto1(double latitud1, double longitud1, double latitud2, double longitud2)
-    {  
-        int id1= encontrarVertice(latitud1, longitud1);
-        int id2= encontrarVertice(latitud2, longitud2);
-    	Dijkstra algoritmo =new Dijkstra(grafo, id1);
-    	return algoritmo.camino(id2);
-    	
-    }
+
 
 
 

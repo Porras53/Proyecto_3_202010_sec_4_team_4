@@ -1,6 +1,6 @@
 package model.data_structures;
 
-public class Arco<K extends Comparable <K>, V, C> {
+public class Arco <K extends Comparable <K>, V, C> implements Comparable<Arco>{
 
 	private Vertice <K,V,C>vInicio;
 	private Vertice <K,V,C>vFinal;
@@ -52,4 +52,28 @@ public class Arco<K extends Comparable <K>, V, C> {
 		else
 			return false;
 	}
+
+	public int other(int vertex) {
+		
+		
+        if      (vertex == (Integer)vInicio.getKey()) return (Integer)vFinal.getKey();
+        else if (vertex == (Integer)vFinal.getKey()) return (Integer)vInicio.getKey();
+        else throw new IllegalArgumentException("Illegal endpoint");
+    }
+	
+	@Override
+	public int compareTo(Arco otro) {
+		int retorno=0;
+		if((Double)costo < (Double)otro.getCosto()) 
+		{
+			retorno=1;
+		}
+		else 
+		{
+			retorno=-1;
+		}
+		return retorno;
+	}
+	
+	
 }

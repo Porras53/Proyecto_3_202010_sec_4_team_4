@@ -139,8 +139,9 @@ public class ListaDoblementeEncadenada <T> implements Iterable<T>
 		if(cabeza!= null)
 		{
 			T retorno=null;
-			if(cabeza.darSiguiente()==null)
+			if(cabeza==ultimo)
 			{
+				retorno=cabeza.darE();
 				cabeza = null;
 			}
 			else
