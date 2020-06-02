@@ -1,10 +1,10 @@
 package model.data_structures;
 
-public class MaxHeapCP <T extends Comparable<T>> 
+public class MaxHeapCP2 <T extends Comparable<T>> 
 {
 	private ArregloDinamico<T> arreglo;
 	
-	public MaxHeapCP() {
+	public MaxHeapCP2() {
 		arreglo = new ArregloDinamico<T>(100);
 	}
 	
@@ -36,7 +36,6 @@ public class MaxHeapCP <T extends Comparable<T>>
 		int posicion = 0;
 		while(!esHoja(posicion) && (arreglo.darElemento(posicion).compareTo(arreglo.darElemento(2*posicion+1)) < 0 ||
 				(!nuloDerecha(posicion) && arreglo.darElemento(posicion).compareTo(arreglo.darElemento(2*posicion+2)) < 0))) {
-			
 			if(arreglo.darElemento(posicion).compareTo(arreglo.darElemento(2*posicion+1)) < 0 && (nuloDerecha(posicion) ||
 					arreglo.darElemento(2*posicion+1).compareTo(arreglo.darElemento(2*posicion+2)) > 0)) {
 				arreglo.swap(posicion, 2*posicion+1);
@@ -65,6 +64,30 @@ public class MaxHeapCP <T extends Comparable<T>>
 
 	public ArregloDinamico<T> getArreglo() {
 		return arreglo;
+	}
+
+	public boolean contains(T Item) {
+		// TODO Auto-generated method stub
+	
+			
+
+		return arreglo.buscar(Item)!=null;
+	}
+
+	public void disminuirLlave(int idActual, Dijkstraobject Item) {
+		for (int i = 0; i < arreglo.darTamano(); i++) {
+			if(arreglo.darElemento(i)!=null) {
+				Dijkstraobject actual = (Dijkstraobject) arreglo.darElemento(i);
+				if(actual.getIdOrigen()==idActual) {
+					arreglo.agregar((T) actual);
+					arreglo.swap(i, arreglo.darTamano() -1);
+					arreglo.eliminar();
+					
+				}
+			}
+		}
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

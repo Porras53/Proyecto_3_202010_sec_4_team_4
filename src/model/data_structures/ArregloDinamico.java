@@ -43,7 +43,7 @@ public class ArregloDinamico<T extends Comparable<T>> {
                     {
                      	 elementos[i] = copia[i];
                     } 
-            	    System.out.println("Arreglo lleno: " + tamanoAct + " - Arreglo duplicado: " + tamanoMax);
+            	   // System.out.println("Arreglo lleno: " + tamanoAct + " - Arreglo duplicado: " + tamanoMax);
                }	
                elementos[tamanoAct] = dato;
                tamanoAct++;

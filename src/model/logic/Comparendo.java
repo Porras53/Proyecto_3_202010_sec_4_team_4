@@ -138,13 +138,26 @@ public class Comparendo implements Comparable<Comparendo>{
 	@Override
 	public int compareTo(Comparendo compa) {
 		// TODO Auto-generated method stub
-		if(id > compa.id)
-			return 1;
-		else if(id == compa.id ) {
-			return 0;
-		} else {
-			return -1;
-		}
+        if(tiposervi.equals(compa.getTiposervi()))
+        {
+        	return infraccion.compareTo(compa.getInfraccion());
+        }
+        else if(tiposervi.equals("Publico"))
+        {
+        	return 1;
+        }
+        else if(tiposervi.equals("Particular"))
+        {
+        	return -1;
+        }
+        else if(tiposervi.equals("Oficial")&& compa.getTiposervi().equals("Publico"))	
+        {
+             return -1; 
+        }
+        else
+        {
+        	return 1;
+        }
 	}
 
 	public String getMediodeteccion() {

@@ -74,18 +74,77 @@ public class Controller {
 
 				modelo.dibujarTodin();
 				break;	
+			
+				
 			case 5: 
+				view.printMessage("Inserte la longitud 1: \n---------"); 
+				Double longitud1 = lector.nextDouble();
+				
+				view.printMessage("Inserte la latitud 1: \n---------"); 
+				Double latitud1 = lector.nextDouble();
+				
+				view.printMessage("Inserte la longitud 2: \n---------"); 
+				Double longitud2 = lector.nextDouble();
+				
+				view.printMessage("Inserte la latitud 2: \n---------"); 
+				Double latitud2 = lector.nextDouble();
+				
+				modelo.parteA1(longitud1, latitud1, longitud2, latitud2);
+				break;	
+			
+			case 6: 
+				view.printMessage("Inserte la cantidad M de comparendos graves que quiere ver: \n---------"); 
+				Integer m = lector.nextInt();
+				
+				
+				
+				modelo.parteA2(m);
+				break;	
+				
+				
+			case 7: 
+				view.printMessage("Inserte la cantidad M de comparendos graves que quiere ver: \n---------"); 
+				m = lector.nextInt();
+				
+				
+				
+				modelo.parteC1(m);
+				break;	
+				
+			case 8: 				
+				modelo.parteC2();
+				break;	
+				
+			case 9: 
+				view.printMessage("Inserte la longitud 1: \n---------"); 
+				longitud1 = lector.nextDouble();
+				
+				view.printMessage("Inserte la latitud 1: \n---------"); 
+				latitud1 = lector.nextDouble();
+				
+				view.printMessage("Inserte la longitud 2: \n---------"); 
+				longitud2 = lector.nextDouble();
+				
+				view.printMessage("Inserte la latitud 2: \n---------"); 
+				latitud2 = lector.nextDouble();
+				
+				modelo.parteB1(longitud1, latitud1, longitud2, latitud2);
+				break;
+				
+			case 10: 
+				view.printMessage("Inserte la cantidad M de comparendos graves que quiere ver: \n---------"); 
+				m = lector.nextInt();
+				
+				
+				
+				modelo.parteB2(m);
+				break;		
+				
+				
+			case 11: 
 				view.printMessage("--------- \n Hasta pronto !! \n---------"); 
 				lector.close();
 				fin = true;
-				break;
-				
-			case 6: 
-				modelo.pruebaMaps();
-				break;	
-				
-			case 7:
-				modelo.anadirComparendosalgrafo();
 				break;
 
 			default: 

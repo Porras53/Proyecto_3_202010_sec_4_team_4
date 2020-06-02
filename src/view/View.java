@@ -19,7 +19,13 @@ public class View
 			System.out.println("2. Crear Json.");
 			System.out.println("3. Cargar Json.");
 			System.out.println("4. Mostrar Grafo.");
-			System.out.println("5. Exit");
+			System.out.println("5. Punto1A.");
+			System.out.println("6. Punto2A.");
+			System.out.println("7. Punto1C.");
+			System.out.println("8. Punto2C.");
+			System.out.println("9. Punto1B.");
+			System.out.println("10. Punto2B.");
+			System.out.println("11. Exit");
 			System.out.println("Dar el numero de opcion a resolver, luego oprimir tecla Return: (e.g., 1):");
 		}
 

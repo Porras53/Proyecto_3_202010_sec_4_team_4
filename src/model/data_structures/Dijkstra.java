@@ -5,7 +5,7 @@ import java.util.Iterator;
 public class Dijkstra {
 	private Grafo grafoNoDirigido;
 	private HashSeparateChaining <Integer, Dijkstraobject>tablaDeHash;
-	private MaxHeapCP<Dijkstraobject> Queue ;
+	private MaxHeapCP2<Dijkstraobject> Queue ;
 
 	public Dijkstra (Grafo grafo, int id)
 	{
@@ -19,8 +19,9 @@ public class Dijkstra {
 		}
 		tablaDeHash.getSet(id).darCabeza().setCosto(0);
 		grafoNoDirigido=grafo;
-		Queue=new MaxHeapCP();
+		Queue=new MaxHeapCP2();
 		Queue.agregar(tablaDeHash.getSet(id).darCabeza());
+		
 		while(Queue.estaVacio()==false){
 			int actual=Queue.eliminarMayor().getIdOrigen();
 

@@ -33,6 +33,7 @@ public class Sectores {
 		n=nn;
 	}
 	
+	
 	public Integer elSectorenelqueesta(Double lat, Double longi) 
 	{
 		

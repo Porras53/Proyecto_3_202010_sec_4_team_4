@@ -24,13 +24,22 @@ public class Grafo<K extends Comparable <K>, V, C> {
 	}
 
 
-	public void addVertex(K idVertex, V infoVertex) {
+	public void addVertex(K idVertex, V infoVertex,Double latitud, Double longitud) {
 		Vertice <K,V,C> vertex=new Vertice(idVertex, infoVertex);
-
+		vertex.setLatitud(latitud);
+		vertex.setLongitud(longitud);
 		nodos.putInSet(idVertex, vertex);
-		marked.putInSet(idVertex, 0);
-		id.putInSet(idVertex, -1);
+		
 	}
+	
+	public void addVertex(Vertice nuevo) 
+	{
+		K idVertex= (K)nuevo.getKey();
+		nodos.putInSet(idVertex, nuevo);
+		
+	}
+	
+	
 
 
 	public V getInfoVertex(K idVertex) {
@@ -58,6 +67,7 @@ public class Grafo<K extends Comparable <K>, V, C> {
 			nodos.getSet(idVertex).darCabeza().setValue(infoVertex);
 
 	}
+	
 	public void addEdge(Arco nuevoarco) {
 
 		if( nuevoarco!=null) {
@@ -65,6 +75,7 @@ public class Grafo<K extends Comparable <K>, V, C> {
 			list.insertarFinal(nuevoarco);
 
 		}
+
 	}
 
 	public void addEdge(K idVertexIni, K idVertexFin, Double cost,Double cost2) {
@@ -75,6 +86,26 @@ public class Grafo<K extends Comparable <K>, V, C> {
 			Vertice v2=nodos.getSet(idVertexFin).darCabeza();
 			Arco object=new Arco (v1, v2, cost,cost2);
 			Arco object2=new Arco (v2, v1, cost,cost2);
+			list.insertarFinal(object);
+			v1.anadiraListadeVertices(v2);
+			v2.anadiraListadeVertices(v1);
+			v1.anadiraListadeArcos(object);
+			v2.anadiraListadeArcos(object2);
+
+		}
+
+	}
+	
+	public void addEdge4(K idVertexIni, K idVertexFin, Double cost,Double cost2, K id) {
+
+		if( nodos.getSet(idVertexFin)!=null && nodos.getSet(idVertexIni)!=null) {
+
+			Vertice v1=nodos.getSet(idVertexIni).darCabeza();
+			Vertice v2=nodos.getSet(idVertexFin).darCabeza();
+			Arco object=new Arco (v1, v2, cost,cost2);
+			Arco object2=new Arco (v2, v1, cost,cost2);
+			object.setId(id);
+			object2.setId(id);
 			list.insertarFinal(object);
 			v1.anadiraListadeArcos(object);
 			v2.anadiraListadeArcos(object2);
@@ -92,6 +123,21 @@ public class Grafo<K extends Comparable <K>, V, C> {
 			Arco object=new Arco (v1, v2, cost,cost2);
 			list.insertarFinal(object);
 			v1.anadiraListadeArcos(object);
+			v1.anadiraListadeVertices(v2);
+			v2.anadiraListadeVertices(v1);
+
+		}
+
+	}
+	
+	public void addEdge3(K idVertexIni, K idVertexFin, Double cost,Double cost2) {
+
+		if( nodos.getSet(idVertexFin)!=null && nodos.getSet(idVertexIni)!=null) {
+
+			Vertice v1=nodos.getSet(idVertexIni).darCabeza();
+			Vertice v2=nodos.getSet(idVertexFin).darCabeza();
+			Arco object=new Arco (v1, v2, cost,cost2);
+			list.insertarFinal(object);
 
 		}
 
@@ -145,7 +191,24 @@ public class Grafo<K extends Comparable <K>, V, C> {
 		return nodos.getSet(v).darCabeza().darListaArcos();
 	}
 
-
+	
+	public ListaDoblementeEncadenada<Arco> adj3(K v) {
+		return nodos.getSet(v).darCabeza().darListaArcos();
+	}
+	
+	public ListaDoblementeEncadenada<Integer> adj2(K v) {
+		
+		ListaDoblementeEncadenada<Integer> retorno= new ListaDoblementeEncadenada<Integer>();
+	
+		for(Vertice act: nodos.getSet(v).darCabeza().getVerticesadyacentes()) 
+		{
+			
+			retorno.insertarFinal((Integer)act.getKey());
+			
+		}
+		
+		return retorno;
+	}
 	public void uncheck() 
 	{
 		count2=0;
@@ -189,7 +252,7 @@ public class Grafo<K extends Comparable <K>, V, C> {
 	 }
 
 
-	 public int cc() 
+	/** public int cc() 
 	 {	
 	 uncheck();
 
@@ -215,8 +278,16 @@ public class Grafo<K extends Comparable <K>, V, C> {
 		 }
 	 }
 	 return count;
+	 }**/
+	 
+	 public int cc() 
+	 {
+		CC nuevo= new CC(this);
+		return  nuevo.count();
 	 }
 
+	 
+	 
 	 public Iterable<K> getCC(K idVertex)
 	 {
 		 /**
@@ -233,6 +304,36 @@ public class Grafo<K extends Comparable <K>, V, C> {
 
 	public ListaDoblementeEncadenada<Arco> getList() {
 		return list;
+	}
+
+
+	public HashSeparateChaining<K, Integer> getMarked() {
+		return marked;
+	}
+
+
+	public void setMarked(HashSeparateChaining<K, Integer> marked) {
+		this.marked = marked;
+	}
+
+
+	public HashSeparateChaining<K, Integer> getId() {
+		return id;
+	}
+
+
+	public void setId(HashSeparateChaining<K, Integer> id) {
+		this.id = id;
+	}
+
+
+	public void setNodos(HashSeparateChaining<K, Vertice<K, V, C>> nodos) {
+		this.nodos = nodos;
+	}
+
+
+	public void setList(ListaDoblementeEncadenada<Arco> list) {
+		this.list = list;
 	}
 
 

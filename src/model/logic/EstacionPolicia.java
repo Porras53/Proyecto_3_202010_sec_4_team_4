@@ -2,9 +2,6 @@ package model.logic;
 
 public class EstacionPolicia {
 	
-	
-
-
 	private int id;
 	private Double longitud;
 	private Double latitud;
@@ -15,6 +12,8 @@ public class EstacionPolicia {
 	private String horario;
 	private String telefono;
 	private String local;
+	private Integer numerodecomparendos;
+	private String  color;
 	
 	
 	public EstacionPolicia(int id, Double longitud, Double latitud, String direccion, String descripcion, String correo,
@@ -30,6 +29,8 @@ public class EstacionPolicia {
 		this.horario = horario;
 		this.telefono = telefono;
 		this.local = local;
+		numerodecomparendos=0;
+		color="#FF0000";
 	}
 
 	
@@ -148,6 +149,30 @@ public class EstacionPolicia {
 
 	public void setLocal(String local) {
 		this.local = local;
+	}
+
+
+
+	public Integer getNumerodecomparendos() {
+		return numerodecomparendos;
+	}
+
+
+
+	public void setNumerodecomparendos(Integer numerodecomparendos) {
+		this.numerodecomparendos += numerodecomparendos;
+	}
+
+
+
+	public String getColor() {
+		return color;
+	}
+
+
+
+	public void setColor(String color) {
+		this.color = color;
 	}
 	
 	
