@@ -23,6 +23,7 @@ public class ListaDoblementeEncadenada <T> implements Iterable<T>
 	private Node<T> ultimo=null;
 	
 	
+	
 	/**
 	 * Metodo Constructro Lista Encadenada
 	 */
@@ -111,7 +112,7 @@ public class ListaDoblementeEncadenada <T> implements Iterable<T>
 		}
 		longitud++;
 	}
-	
+ 
 	/**
 	 * Elimina el primer elemento de la lista.
 	 */

@@ -58,7 +58,14 @@ public class Grafo<K extends Comparable <K>, V, C> {
 			nodos.getSet(idVertex).darCabeza().setValue(infoVertex);
 
 	}
+	public void addEdge(Arco nuevoarco) {
 
+		if( nuevoarco!=null) {
+
+			list.insertarFinal(nuevoarco);
+
+		}
+	}
 
 	public void addEdge(K idVertexIni, K idVertexFin, Double cost,Double cost2) {
 

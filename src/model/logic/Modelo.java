@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -964,9 +965,78 @@ public class Modelo {
     	return algoritmo.camino(id2);
     	
     }
+    public void parteBpunto2(Integer m) 
+	{ 
+    	/*ArrayList<Coordenada>arreglo = new ArrayList();
+    	
+    	
+    	
+    	ListaDoblementeEncadenada<Coordenada> lista2= new ListaDoblementeEncadenada();
+    	ListaDoblementeEncadenada<Comparendo> primero= grafo.getList();
+    	
+        	Coordenada temp= new Coordenada(primero.darCabeza().getLongitud(), primero.darCabeza().getLatitud());
+        	
+        	
+    	while(primero.iterator().hasNext())
+    	{
+    		Coordenada temp2= new Coordenada(primero.iterator().next().getLongitud(), primero.iterator().next().getLatitud());
+    		if(temp.equals(temp2))
+    		{
+    			
+    		}
+    	}
+    		int max= primero.darCabeza().getCantidadComparendos();	*/
+    
+    	
+    	
+    	//Creamos la lista que almacenará as coordenadas
+    	ListaDoblementeEncadenada<Coordenada> lista2= new ListaDoblementeEncadenada();
+    	//Obtenemos la lista que tiene el grafo con los comparendos
+    	ListaDoblementeEncadenada<Comparendo> primero= grafo.getList();
+    	//Creamos la coordenada asociada al primer elemento de la lista de comparentos
+    	Coordenada temp= new Coordenada(primero.darCabeza().getLongitud(), primero.darCabeza().getLatitud());
+    	//Almacenaremos la cantidad de comparendos por coordenada. Para eso haremos algunas verificaciones.
+    	//Agregamos la primera coordenada encontrada
+    	// acá debo agegar el comparendo para que sume la cantidad de comparendos en esa coordenada
+    	primero.insertarFinal(temp.getComparendos());
+    	//debo agregar esa primera coordenada creada
+    	lista2.insertarFinal(temp);
+    	//Mientras existan comparendos
+    	int cantidadComparendos= Coordenada.getCantidadComparendos();
+    	while(primero.iterator().hasNext())
+    	{
+    		
+    		//acá debo verificar si existe otra coordenada con la misma latitud y longitud. Debería un proceso iterativo que te busque si ya existe un punto con esas coordenadas)
+    		if(temp.getLatitud()==lista2.darCabeza().getLatitud()&&temp.getLongitud()==lista2.darCabeza().getLongitud())
+    	    	{
+    			lista2.insertarComienzo(temp);
+    	    		//Si existe debo agregar el comparendo que tiene esas coordenadas y sumar uno a la cantidad de comparendos. 
+    			cantidadComparendos++;
+    	    	}else{
+    			Coordenada temp2 = new Coordenada(primero.iterator().next().getLongitud(), primero.iterator().next().getLatitud());
+    			lista2.insertarFinal(temp2);
+    		}
+    	}
 
+    	//Acá debo verificar cuáles coordenadas (máximo m) tienen la mayor cantidad de comparendos. Cuando tenga esos los guardo en una lista. 
+    	//Debo crear un grafo con esas coordenadas que tienen la mayor cantidad de comparendos. 
+    	//Una vez hecha la lista debo implementar el algoritmo de Dijkstra entre todas esas coordenadas
 
+    	//Recordar que debo crear con grafo con esas coordenadas que encontraste con la mayor cantidad de comparendos para hacer el Dijkstra donde me lo piden. Podria seleccionar cualquiera de esas coordenadas como la primera para buscar el camino más corto. 
+    	
+	}
+    
+    
+    
 
+ //cuales son los maximos para agregarlos a la lista
+ // buscar cuales tienen la mayor cantidad de comparendos para saber entre esas coordenadas cual es el que menor longitud tiene
+ //encontrar la cantidad de coordenadas que tienen la mayor cantidad de comparendos, entre la coordenadas obtenidas hay que hallar la ruta mas corta
+ // buscar en la tabla de hash el vertice que tiene ese id
+ //comparar el comparendo del grafo con el vertice en el que estoy parado
+    //parte c punto 1
+// encontrar el vertice que correspponde con una estacion de policia desde comparendo
+ //buscar desde un comparendo dentro de un sector a la estacion de policia
 
 
 
